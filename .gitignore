@@ -1,0 +1,35 @@
+# ============
+# LOGS / REPORTS
+# ============
+*.log
+*.log.gz
+report.xml
+output
+test-results.xml
+coverage/*
+dump.rdb
+
+# ============
+# BUILDS
+# ============
+public/*
+
+# ============
+# NODE_MODULES
+# ============
+node_modules
+
+
+# ============
+# IDEA
+# ============
+.idea
+*.iml
+
+# ============
+# CONFIG
+# ============
+newrelic.config.js
+config.js
+
+NODE_ENV_DOCKERFILE
