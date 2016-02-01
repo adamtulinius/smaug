@@ -32,12 +32,15 @@
     "@dbcdk/dbc-config": "^2.0.0",
     "babel": "5.8.29",
     "babel-core": "5.8.29",
+    "body-parser": "^1.14.1",
+    "dbc-node-borchk": "^2.0.1",
     "express": "4.13.3",
+    "lodash": "^3.10.1",
+    "oauth2-server": "^2.4.1",
     "socket.io": "1.3.7"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.5",
     "eslint": "^1.0.0"
-
   }
 }
