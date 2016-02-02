@@ -12,6 +12,7 @@ import socketio from 'socket.io'; // eslint-disable-line no-unused-vars
 import bodyParser from 'body-parser';
 import OAuth2Server from 'oauth2-server';
 import model from './twolevel.model';
+import {authorizeFull, authorizePartial} from './twolevel.middleware.js';
 
 
 // Setup
@@ -34,8 +35,15 @@ app.use(app.oauth.errorHandler());
 
 app.all('/oauth/token', app.oauth.grant());
 
-app.get('/', app.oauth.authorise(), function (req, res) {
+
+
+// Examples of OAuth middleware
+app.get('/', app.oauth.authorise(), authorizePartial(), function (req, res) {
   res.send('Secret area');
+});
+
+app.get('/test', app.oauth.authorise(), authorizeFull(), function(req, res) {
+  res.send('Super secret area');
 });
 
 
