@@ -9,10 +9,7 @@
     "lint:checkstyle": "eslint ./src  -o report.xml -f checkstyle",
     "serve": "supervisor  --instant-kill -w src/app.js,src/server,node_modules src/main.js",
     "start": "node src/main.js",
-    "test": "karma start --single-run=true",
-    "test:watch": "karma start",
-    "tail": "tail -f log.log",
-    "tail:timer": "tail -f log.log | awk '(/event/ || /time_delta/ || /TIMER/) && !/result/'"
+    "test": "echo 'no tests yet'"
   },
   "repository": {
     "type": "git",
