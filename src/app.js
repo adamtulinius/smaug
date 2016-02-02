@@ -28,7 +28,7 @@ app.oauth = OAuth2Server({
 
 app.set('port', process.env.PORT || 8080); // eslint-disable-line no-process-env
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(app.oauth.errorHandler());
 
@@ -36,13 +36,12 @@ app.use(app.oauth.errorHandler());
 app.all('/oauth/token', app.oauth.grant());
 
 
-
 // Examples of OAuth middleware
 app.get('/', app.oauth.authorise(), authorizePartial(), function (req, res) {
   res.send('Secret area');
 });
 
-app.get('/test', app.oauth.authorise(), authorizeFull(), function(req, res) {
+app.get('/test', app.oauth.authorise(), authorizeFull(), function (req, res) {
   res.send('Super secret area');
 });
 

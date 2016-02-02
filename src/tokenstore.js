@@ -1,6 +1,5 @@
 'use strict';
 
-import {forEach} from 'lodash';
 import redis from 'redis';
 import clients from './clientregister.js';
 
@@ -17,7 +16,9 @@ class TokenStore {
     this.redisClient.flushall();
     // store all clients in redis
     for (let clientId in clients) {
-      this.storeClient(clientId, clients[clientId]);
+      if ({}.hasOwnProperty.call(clients, clientId)) {
+        this.storeClient(clientId, clients[clientId]);
+      }
     }
   }
 
@@ -48,7 +49,8 @@ class TokenStore {
       redisClient.get(key, function (err, reply) {
         if (reply !== null && reply === clientSecret) {
           resolve(reply);
-        } else {
+        }
+        else {
           reject();
         }
       });
@@ -89,7 +91,8 @@ class TokenStore {
       redisClient.hmget(key, 'clientId', 'userId', function (err, reply) {
         if (err !== null) {
           reject(err);
-        } else {
+        }
+        else {
           resolve({accessToken: bearerToken, clientId: reply[0], userId: reply[1]});
         }
       });
@@ -113,7 +116,8 @@ class TokenStore {
       redisClient.ttl(key, function (err, reply) {
         if (err !== null) {
           reject(err);
-        } else {
+        }
+        else {
           resolve({ttl: reply});
         }
       });

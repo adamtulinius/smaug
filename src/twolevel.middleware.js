@@ -7,20 +7,22 @@
  */
 
 export function authorizeFull() {
-  return function(req, res ,next) {
-    if (typeof req.user.id === 'undefined' || req.user.id === 'anonymous'){
+  return function (req, res, next) {
+    if (typeof req.user.id === 'undefined' || req.user.id === 'anonymous') {
       next(new Error('Not Authorized'));
-    } else {
+    }
+    else {
       next();
     }
   };
 }
 
 export function authorizePartial() {
-  return function(req, res ,next) {
-    if (typeof req.user.id === 'undefined'){
+  return function (req, res, next) {
+    if (typeof req.user.id === 'undefined') {
       next(new Error('Not Authorized'));
-    } else {
+    }
+    else {
       next();
     }
   };
