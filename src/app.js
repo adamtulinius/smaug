@@ -13,6 +13,7 @@ import bodyParser from 'body-parser';
 import OAuth2Server from 'oauth2-server';
 import model from './oauth/twolevel.model.js';
 import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
+import throttle from './throttle/throttle.middleware.js';
 
 
 // Setup
@@ -31,6 +32,8 @@ app.set('port', process.env.PORT || 8080); // eslint-disable-line no-process-env
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(app.oauth.errorHandler());
+app.use(throttle());
+
 
 app.all('/oauth/token', app.oauth.grant());
 

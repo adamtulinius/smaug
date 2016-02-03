@@ -3,12 +3,14 @@
 import TokenStore from './tokenstore.js';
 import contains from 'lodash';
 import BorchkServiceClient from 'dbc-node-borchk';
+import Throttler from '../throttle/throttle.js';
 
 /**
  * @file Model used by the OAuth2 Server for Resource-Owner
  */
 
 const tokenStore = new TokenStore();
+const throttler = new Throttler();
 
 const borchkClient = new BorchkServiceClient({
   wsdl: 'https://borchk.addi.dk/2.4/borchk.wsdl',
@@ -74,7 +76,6 @@ const model = {
   },
 
   getUser (username, password, callback) {
-    // TODO: make some kind of lockout function to slow/prevent bruteforcing pinCode
 
     const params = {
       userId: username,
@@ -92,7 +93,10 @@ const model = {
         callback(null, user);
       }
       else {
-        // if borchk fails, return a non-informative auth error
+        // if borchk fails
+        // register username
+        throttler.registerAuthFailure(username);
+        // and return a non-informative auth error
         callback(new Error('authentication error'), null);
       }
     });
