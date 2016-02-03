@@ -8,7 +8,7 @@ import Throttler from './throttle.js';
 
 
 /**
- * The middleware will throttle requests based on credentials usage.
+ * The middleware will throttleRequest requests based on credentials usage.
  */
 export default function throttle(options) {
   options = options || {};
@@ -18,7 +18,7 @@ export default function throttle(options) {
   /**
    * Delays the request 5 seconds if authentication failure limit has been exceeded
    */
-  return function throttle(req, res, next) {
+  return function throttleRequest(req, res, next) {
     const username = req.body.username;
     if (username) {
       // check if username has exceeded
@@ -31,9 +31,10 @@ export default function throttle(options) {
           next();
         }
       });
-    } else {
+    }
+    else {
       // nothing happened..
       next();
     }
-  }
-};
+  };
+}

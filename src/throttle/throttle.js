@@ -3,10 +3,8 @@
 import redis from 'redis';
 
 /**
- * @file Register and throttle suspicious requests.
+ * @file Register and throttleRequest suspicious requests.
  */
-
-const KEY_PREFIX = 'throttle_';
 
 class Throttler {
 
@@ -25,7 +23,7 @@ class Throttler {
 
     const key = this.createUserKey(username);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       redisClient.get(key, (err, reply) => {
         if (typeof reply === 'undefined' || (reply <= 5)) {
           // username is not banned
@@ -35,7 +33,7 @@ class Throttler {
           // username is banned
           resolve(true);
         }
-      })
+      });
     });
   }
 
