@@ -25,7 +25,7 @@ export default function throttle(options) {
       const isBannedPromise = throttler.isUserBanned(username);
       isBannedPromise.then((isBanned) => {
         if (isBanned) {
-          setInterval(next, 5000);
+          setTimeout(next, 5000);
         }
         else {
           next();
