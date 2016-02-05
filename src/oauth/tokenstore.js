@@ -12,8 +12,6 @@ class TokenStore {
   constructor() {
     // initialize redis client
     this.redisClient = redis.createClient();
-    // reset redis
-    this.redisClient.flushall();
     // store all clients in redis
     for (let clientId in clients) {
       if ({}.hasOwnProperty.call(clients, clientId)) {
