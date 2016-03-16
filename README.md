@@ -1,4 +1,7 @@
 # openserviceprovider
+
+[![Build Status](https://travis-ci.org/DBCDK/smaug.svg?branch=master)](https://travis-ci.org/DBCDK/serviceprovider)
+
 Application that exposes the serviceProvider as a socket service
 
 
