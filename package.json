@@ -1,5 +1,5 @@
 {
-  "name": "openserviceprovider",
+  "name": "smaug",
   "version": "0.0.1",
   "description": "ServiceProvider Application",
   "main": "src/main.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/DBCDK/openserviceprovider.git"
+    "url": "https://github.com/DBCDK/smaug.git"
   },
   "keywords": [
     "pallesgavebod",
@@ -22,9 +22,9 @@
   "author": "dbcdk",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/DBCDK/openserviceprovider/issues"
+    "url": "https://github.com/DBCDK/smaug/issues"
   },
-  "homepage": "https://github.com/DBCDK/openserviceprovider#readme",
+  "homepage": "https://github.com/DBCDK/smaug#readme",
   "dependencies": {
     "@dbcdk/dbc-config": "^2.0.0",
     "babel": "5.8.29",
