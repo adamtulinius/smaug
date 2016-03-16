@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/DBCDK/smaug#readme",
   "dependencies": {
-    "@dbcdk/dbc-config": "^2.0.0",
     "babel": "5.8.29",
     "babel-core": "5.8.29",
     "body-parser": "^1.14.1",
