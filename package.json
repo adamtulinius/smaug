@@ -34,6 +34,7 @@
     "express": "4.13.3",
     "lodash": "^3.10.1",
     "oauth2-server": "^2.4.1",
+    "redis": "^2.0.0",
     "socket.io": "1.3.7"
   },
   "devDependencies": {
