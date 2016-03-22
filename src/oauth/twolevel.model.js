@@ -1,6 +1,5 @@
 'use strict';
 
-import TokenStore from './tokenstore/redis.js';
 import contains from 'lodash';
 import BorchkServiceClient from 'dbc-node-borchk';
 import Throttler from '../throttle/throttle.js';
@@ -9,7 +8,6 @@ import Throttler from '../throttle/throttle.js';
  * @file Model used by the OAuth2 Server for Resource-Owner
  */
 
-const tokenStore = new TokenStore();
 const throttler = new Throttler();
 
 const borchkClient = new BorchkServiceClient({
@@ -17,29 +15,31 @@ const borchkClient = new BorchkServiceClient({
   serviceRequester: 'bibliotek.dk'
 });
 
+export class Model {
+  constructor(tokenStore) {
+    this.tokenStore = tokenStore;
+  }
 
-const model = {
-
-  getAccessToken: (bearerToken, callback) => {
-    tokenStore.getAccessToken(bearerToken)
+  getAccessToken(bearerToken, callback) {
+    this.tokenStore.getAccessToken(bearerToken)
       .then((token) => {
         callback(null, token);
       })
       .catch((err) => {
         callback(err, null);
       });
-  },
+  }
 
   saveAccessToken (accessToken, clientId, expires, user, callback) {
-    tokenStore.storeAccessToken(accessToken, clientId, expires, user)
+    this.tokenStore.storeAccessToken(accessToken, clientId, expires, user)
       .then(callback())
       .catch((err) => {
         throw err;
       });
-  },
+  }
 
   getClient (clientId, clientSecret, callback) {
-    tokenStore.getClient(clientId, clientSecret)
+    this.tokenStore.getClient(clientId, clientSecret)
       .then(() => {
         // if found then return clientid else return false
         callback(null, {clientId: clientId});
@@ -47,7 +47,7 @@ const model = {
       .catch((err) => {
         callback(err, false);
       });
-  },
+  }
 
   grantTypeAllowed (clientId, grantType, callback) {
     // All clients should be allowed to used password and client_credentials
@@ -57,7 +57,7 @@ const model = {
     else {
       callback(null, false);
     }
-  },
+  }
 
   getUser (username, password, callback) {
     const params = {
@@ -83,13 +83,12 @@ const model = {
         callback(new Error('authentication error'), null);
       }
     });
-  },
+  }
 
   getUserFromClient(clientId, clientSecret, callback) {
     let user = {id: 'anonymous'};
     callback(null, user);
   }
+}
 
-};
-
-export default model;
+export default Model;
