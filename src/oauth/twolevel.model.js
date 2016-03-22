@@ -21,48 +21,32 @@ const borchkClient = new BorchkServiceClient({
 const model = {
 
   getAccessToken: (bearerToken, callback) => {
-
-    // retrieve access_token variables from redis
-    const getPromise = tokenStore.getAccessToken(bearerToken);
-    const ttlPromise = tokenStore.getAccessTokenTTL(bearerToken);
-
-    Promise.all([getPromise, ttlPromise]).then((replies) => {
-
-      const token = {
-        accessToken: replies[0].accessToken,
-        clientId: replies[0].clientId,
-        expires: replies[1].ttl * 1000 + Math.ceil(Date.now() / 1000) * 1000,
-        userId: replies[0].userId
-      };
-
-      callback(null, {
-        accessToken: token.access_token,
-        clientId: token.client_id,
-        expires: token.expires,
-        userId: token.userId
+    tokenStore.getAccessToken(bearerToken)
+      .then((token) => {
+        callback(null, token);
+      })
+      .catch((err) => {
+        callback(err, null);
       });
-    }, (err) => {
-      callback(err, null);
-    });
   },
 
   saveAccessToken (accessToken, clientId, expires, user, callback) {
-    // store the newly generated access_token variables in redis
-    tokenStore.storeAccessToken(accessToken, clientId, expires, user);
-    callback();
+    tokenStore.storeAccessToken(accessToken, clientId, expires, user)
+      .then(callback())
+      .catch((err) => {
+        throw err;
+      });
   },
 
   getClient (clientId, clientSecret, callback) {
-
-    // lookup in redis to see if client is registered.
-    const getPromise = tokenStore.getClient(clientId, clientSecret);
-
-    getPromise.then(() => {
-      // if found then return clientid else return false
-      callback(null, {clientId: clientId});
-    }, (err) => {
-      callback(err, false);
-    });
+    tokenStore.getClient(clientId, clientSecret)
+      .then(() => {
+        // if found then return clientid else return false
+        callback(null, {clientId: clientId});
+      })
+      .catch((err) => {
+        callback(err, false);
+      });
   },
 
   grantTypeAllowed (clientId, grantType, callback) {
@@ -76,7 +60,6 @@ const model = {
   },
 
   getUser (username, password, callback) {
-
     const params = {
       userId: username,
       userPincode: password,
