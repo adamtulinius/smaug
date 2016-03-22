@@ -1,6 +1,6 @@
 'use strict';
 
-import TokenStore from './tokenstore.js';
+import TokenStore from './tokenstore/redis.js';
 import contains from 'lodash';
 import BorchkServiceClient from 'dbc-node-borchk';
 import Throttler from '../throttle/throttle.js';

@@ -1,7 +1,7 @@
 'use strict';
 
 import redis from 'redis';
-import clients from './clientregister.js';
+import clients from '../clientregister.js';
 
 /**
  * @file Access/Store tokens and clients in Redis.
