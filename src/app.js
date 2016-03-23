@@ -6,47 +6,14 @@
  */
 
 // Libraries
-import express from 'express';
-import socketio from 'socket.io'; // eslint-disable-line no-unused-vars
-import bodyParser from 'body-parser';
-import OAuth2Server from 'oauth2-server';
-import Model from './oauth/twolevel.model.js';
+import createApp from './expressapp';
 import TokenStore from './oauth/tokenstore/redis';
-import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
-import throttle from './throttle/throttle.middleware.js';
-
 
 // Setup
-const app = express();
-
-app.oauth = OAuth2Server({
-  model: new Model(new TokenStore()),
-  grants: ['password', 'client_credentials'],
-  debug: true
-});
-
-app.set('port', process.env.PORT || 8080); // eslint-disable-line no-process-env
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(app.oauth.errorHandler());
-app.use(throttle());
-
-
-app.all('/oauth/token', app.oauth.grant());
-
-
-// Examples of OAuth middleware
-app.get('/', app.oauth.authorise(), authorizePartial(), function (req, res) {
-  res.send('Secret area');
-});
-
-app.get('/test', app.oauth.authorise(), authorizeFull(), function (req, res) {
-  res.send('Super secret area');
-});
-
+const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
+const app = createApp(new TokenStore());
 
 // Starting server
-app.listen(app.get('port'), () => {
+app.listen(port, () => {
   console.log('OpenServiceProvider up and running'); // eslint-disable-line no-console
 });
