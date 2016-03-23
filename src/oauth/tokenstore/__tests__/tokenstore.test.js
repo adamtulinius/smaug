@@ -7,7 +7,7 @@ import Chance from 'chance';
 chai.use(chaiAsPromised);
 chai.should();
 
-['redis'].forEach((tokenStoreName) => {
+['inmemory', 'redis'].forEach((tokenStoreName) => {
   describe(tokenStoreName + ' TokenStore', () => {
     var chance = new Chance();
     var tokenStore = null;
