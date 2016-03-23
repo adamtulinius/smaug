@@ -78,10 +78,8 @@ class TokenStore {
     const redisClient = this.redisClient;
     const key = 'accessToken:' + accessToken;
 
-    var ttlPromise = new Promise((resolve, reject) => {
-      const ttl = Math.ceil((expires.getTime() - Date.now()) / 1000);
-      // set ttl for the accessToken we just stored
-      redisClient.expire(key, ttl, (err, res) => {
+    var promise = new Promise((resolve, reject) => {
+      redisClient.hmset(key, {clientId: clientId, userId: user.id}, (err, res) => { // eslint-disable-line no-unused-vars
         if (err) {
           reject(err);
         }
@@ -91,19 +89,23 @@ class TokenStore {
       });
     });
 
-    var setPromise = new Promise((resolve, reject) => {
-      redisClient.hmset(key, {clientId: clientId, userId: user.id}, (err, res) => { // eslint-disable-line no-unused-vars
-        if (err) {
-          reject(err);
-        }
-        else {
-          return ttlPromise;
-        }
+    promise.then(() => {
+      return new Promise((resolve, reject) => {
+        redisClient.pexpireat(key, expires.getTime(), (err, res) => {
+          if (err) {
+            reject(err);
+          }
+          else if (res === 0) {
+            reject(new Error('ttl for key=' + key + ' could not be set'));
+          }
+          else {
+            resolve(res);
+          }
+        });
       });
     });
 
-
-    return setPromise;
+    return promise;
   }
 
 
@@ -132,7 +134,7 @@ class TokenStore {
     });
 
     const accessTokenTtlPromise = new Promise(function (resolve, reject) {
-      redisClient.ttl(key, function (err, reply) {
+      redisClient.pttl(key, function (err, reply) {
         if (err !== null) {
           reject(err);
         }
@@ -144,10 +146,15 @@ class TokenStore {
 
     return Promise.all([accessTokenPromise, accessTokenTtlPromise])
       .then((replies) => {
+        var expires = null;
+        if (replies[1].ttl !== -1) {
+          expires = new Date();
+          expires.setMilliseconds(expires.getMilliseconds() + replies[1].ttl);
+        }
         return Promise.resolve({
           accessToken: replies[0].accessToken,
           clientId: replies[0].clientId,
-          expires: replies[1].ttl * 1000 + Math.ceil(Date.now() / 1000) * 1000,
+          expires: expires,
           userId: replies[0].userId
         });
       })
