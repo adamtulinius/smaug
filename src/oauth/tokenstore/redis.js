@@ -22,6 +22,25 @@ class TokenStore {
 
 
   /**
+   * Ping redis
+   */
+  ping() {
+    const redisClient = this.redisClient;
+
+    return new Promise((resolve, reject) => {
+      redisClient.ping((err, res) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(res);
+        }
+      });
+    });
+  }
+
+
+  /**
    * Stores a client key-value pair in redis.
    * @param clientId
    * @param clientSecret
