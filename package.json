@@ -9,7 +9,7 @@
     "lint:checkstyle": "eslint ./src  -o report.xml -f checkstyle",
     "serve": "supervisor  --instant-kill -w src/app.js,src/server,node_modules src/main.js",
     "start": "node src/main.js",
-    "test": "mocha src/tests"
+    "test": "LOG_LEVEL=off mocha --compilers js:babel/register --recursive src/**/__tests__/*"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,9 @@
   },
   "devDependencies": {
     "babel-eslint": "^4.0.5",
+    "chai": "^3.0.0",
+    "chai-as-promised": "^5.0.0",
+    "chance": "^1.0.0",
     "eslint": "^1.0.0",
     "mocha": "^2.4.5",
     "sinon": "^1.17.3",
