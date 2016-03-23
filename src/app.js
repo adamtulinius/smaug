@@ -7,7 +7,6 @@
 
 // Libraries
 import express from 'express';
-import http from 'http';
 import socketio from 'socket.io'; // eslint-disable-line no-unused-vars
 import bodyParser from 'body-parser';
 import OAuth2Server from 'oauth2-server';
@@ -19,8 +18,6 @@ import throttle from './throttle/throttle.middleware.js';
 
 // Setup
 const app = express();
-const server = http.createServer(app);
-const socket = socketio.listen(server); // eslint-disable-line no-unused-vars
 
 app.oauth = OAuth2Server({
   model: new Model(new TokenStore()),
@@ -50,6 +47,6 @@ app.get('/test', app.oauth.authorise(), authorizeFull(), function (req, res) {
 
 
 // Starting server
-server.listen(app.get('port'), () => {
+app.listen(app.get('port'), () => {
   console.log('OpenServiceProvider up and running'); // eslint-disable-line no-console
 });
