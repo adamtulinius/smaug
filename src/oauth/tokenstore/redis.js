@@ -1,7 +1,7 @@
 'use strict';
 
 import redis from 'redis';
-import clients from './clientregister.js';
+import clients from '../clientregister.js';
 
 /**
  * @file Access/Store tokens and clients in Redis.
@@ -22,13 +22,43 @@ class TokenStore {
 
 
   /**
+   * Ping redis
+   */
+  ping() {
+    const redisClient = this.redisClient;
+
+    return new Promise((resolve, reject) => {
+      redisClient.ping((err, res) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(res);
+        }
+      });
+    });
+  }
+
+
+  /**
    * Stores a client key-value pair in redis.
    * @param clientId
    * @param clientSecret
    */
   storeClient(clientId, clientSecret) {
+    const redisClient = this.redisClient;
     const key = 'clientId:' + clientId;
-    this.redisClient.set(key, clientSecret);
+
+    return new Promise((resolve, reject) => {
+      redisClient.set(key, clientSecret, (err, res) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(res);
+        }
+      });
+    });
   }
 
 
@@ -65,13 +95,36 @@ class TokenStore {
    */
   storeAccessToken(accessToken, clientId, expires, user) {
     const redisClient = this.redisClient;
-
     const key = 'accessToken:' + accessToken;
-    redisClient.hmset(key, {clientId: clientId, userId: user.id});
-    // calculate time-to-live for automatic cache invalidation
-    const ttl = Math.ceil((expires.getTime() - Date.now()) / 1000);
-    // set ttl for the accessToken we just stored
-    redisClient.expire(key, ttl);
+
+    var promise = new Promise((resolve, reject) => {
+      redisClient.hmset(key, {clientId: clientId, userId: user.id}, (err, res) => { // eslint-disable-line no-unused-vars
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(res);
+        }
+      });
+    });
+
+    promise.then(() => {
+      return new Promise((resolve, reject) => {
+        redisClient.pexpireat(key, expires.getTime(), (err, res) => {
+          if (err) {
+            reject(err);
+          }
+          else if (res === 0) {
+            reject(new Error('ttl for key=' + key + ' could not be set'));
+          }
+          else {
+            resolve(res);
+          }
+        });
+      });
+    });
+
+    return promise;
   }
 
 
@@ -85,33 +138,22 @@ class TokenStore {
 
     const key = 'accessToken:' + bearerToken;
     // create a promise for the command
-    const promise = new Promise(function (resolve, reject) {
+    const accessTokenPromise = new Promise(function (resolve, reject) {
       redisClient.hmget(key, 'clientId', 'userId', function (err, reply) {
         if (err !== null) {
           reject(err);
+        }
+        else if (reply[0] === null || reply[1] === null) {
+          reject(new Error('bearerToken not found'));
         }
         else {
           resolve({accessToken: bearerToken, clientId: reply[0], userId: reply[1]});
         }
       });
     });
-    return promise;
-  }
 
-
-  /**
-   * Gets a promise that contains the TTL for a given accessToken (bearerToken)
-   * @param bearerToken
-   * @returns {Promise}
-   */
-  getAccessTokenTTL(bearerToken) {
-    const redisClient = this.redisClient;
-
-    const key = 'accessToken:' + bearerToken;
-
-    // create a promise for the command
-    const promise = new Promise(function (resolve, reject) {
-      redisClient.ttl(key, function (err, reply) {
+    const accessTokenTtlPromise = new Promise(function (resolve, reject) {
+      redisClient.pttl(key, function (err, reply) {
         if (err !== null) {
           reject(err);
         }
@@ -120,9 +162,25 @@ class TokenStore {
         }
       });
     });
-    return promise;
-  }
 
+    return Promise.all([accessTokenPromise, accessTokenTtlPromise])
+      .then((replies) => {
+        var expires = null;
+        if (replies[1].ttl !== -1) {
+          expires = new Date();
+          expires.setMilliseconds(expires.getMilliseconds() + replies[1].ttl);
+        }
+        return Promise.resolve({
+          accessToken: replies[0].accessToken,
+          clientId: replies[0].clientId,
+          expires: expires,
+          userId: replies[0].userId
+        });
+      })
+      .catch((err) => {
+        return Promise.reject(err);
+      });
+  }
 }
 
 

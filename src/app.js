@@ -11,7 +11,8 @@ import http from 'http';
 import socketio from 'socket.io'; // eslint-disable-line no-unused-vars
 import bodyParser from 'body-parser';
 import OAuth2Server from 'oauth2-server';
-import model from './oauth/twolevel.model.js';
+import Model from './oauth/twolevel.model.js';
+import TokenStore from './oauth/tokenstore/redis';
 import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
 import throttle from './throttle/throttle.middleware.js';
 
@@ -22,7 +23,7 @@ const server = http.createServer(app);
 const socket = socketio.listen(server); // eslint-disable-line no-unused-vars
 
 app.oauth = OAuth2Server({
-  model: model, // See below for specification
+  model: new Model(new TokenStore()),
   grants: ['password', 'client_credentials'],
   debug: true
 });
