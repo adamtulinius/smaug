@@ -3,7 +3,7 @@
 import {hostname} from 'os';
 import process from 'process';
 import _ from 'lodash';
-import {version} from '../package.json';
+import {name, version} from '../package.json';
 
 
 /**
@@ -49,7 +49,7 @@ function doLog(level, msg, args) {
   var blob = {
     '@timestamp': (new Date()).toISOString(),
     '@version': 1,
-    app: 'serviceprovider',
+    app: name,
     version: version,
     level: level.toUpperCase(),
     host: hostname(),
