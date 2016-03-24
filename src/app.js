@@ -1,11 +1,6 @@
 'use strict';
 
-/**
- * @file
- * Configure and start our server
- */
-
-// Libraries
+import {log} from './utils';
 import createApp from './expressapp';
 import TokenStore from './oauth/tokenstore/redis';
 
@@ -15,5 +10,5 @@ const app = createApp(new TokenStore());
 
 // Starting server
 app.listen(port, () => {
-  console.log('OpenServiceProvider up and running'); // eslint-disable-line no-console
+  log.info('Started Smaug on port ' + port);
 });
