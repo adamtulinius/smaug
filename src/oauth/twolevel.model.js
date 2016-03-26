@@ -2,7 +2,6 @@
 
 import {log} from '../utils';
 import contains from 'lodash';
-import BorchkServiceClient from 'dbc-node-borchk';
 import Throttler from '../throttle/throttle.js';
 
 /**
@@ -10,11 +9,6 @@ import Throttler from '../throttle/throttle.js';
  */
 
 const throttler = new Throttler();
-
-const borchkClient = new BorchkServiceClient({
-  wsdl: 'https://borchk.addi.dk/2.4/borchk.wsdl',
-  serviceRequester: 'bibliotek.dk'
-});
 
 export class Model {
   constructor(tokenStore, userStore) {
@@ -71,7 +65,8 @@ export class Model {
       .then((user) => {
         if (user) {
           callback(null, user);
-        } else {
+        }
+        else {
           // if borchk fails
           // register username
           throttler.registerAuthFailure(username);

@@ -24,6 +24,6 @@ describe('borchk', function () {
   it('should fail with invalid credentials', function () {
     var username = 'invalid-username';
     var password = 'wrong-password';
-    return userStore.getUser(username, password).should.eventually.be.an('error');
+    return userStore.getUser(username, password).should.eventually.equal(false);
   });
 });
