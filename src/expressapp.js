@@ -7,11 +7,11 @@ import Model from './oauth/twolevel.model.js';
 import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
 import throttle from './throttle/throttle.middleware.js';
 
-export default function createApp(tokenStore) {
+export default function createApp(tokenStore, userStore) {
   var app = express();
 
   app.oauth = OAuth2Server({
-    model: new Model(tokenStore),
+    model: new Model(tokenStore, userStore),
     grants: ['password', 'client_credentials'],
     debug: true
   });
