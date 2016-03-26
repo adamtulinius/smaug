@@ -1,5 +1,6 @@
 'use strict';
 
+import moment from 'moment';
 import redis from 'redis';
 import clients from '../clientregister.js';
 
@@ -167,13 +168,12 @@ class TokenStore {
       .then((replies) => {
         var expires = null;
         if (replies[1].ttl !== -1) {
-          expires = new Date();
-          expires.setMilliseconds(expires.getMilliseconds() + replies[1].ttl);
+          expires = moment().add(replies[1].ttl, 'milliseconds');
         }
         return Promise.resolve({
           accessToken: replies[0].accessToken,
           clientId: replies[0].clientId,
-          expires: expires,
+          expires: expires.toDate(),
           userId: replies[0].userId
         });
       })
