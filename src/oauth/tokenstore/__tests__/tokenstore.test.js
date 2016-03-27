@@ -3,19 +3,19 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
+import moment from 'moment';
 
 chai.use(chaiAsPromised);
 chai.should();
 
-['redis'].forEach((tokenStoreName) => {
+['inmemory', 'redis'].forEach((tokenStoreName) => {
   describe(tokenStoreName + ' TokenStore', () => {
     var chance = new Chance();
     var tokenStore = null;
     var token = chance.string();
     var clientId = chance.string();
     var clientSecret = chance.string();
-    var expires = new Date();
-    expires.setDate(expires.getDate() + 1); // expire tomorrow
+    var expires = moment().add(1, 'days');
     var user = {id: chance.string()};
 
     it('should initialize', function () {
@@ -48,7 +48,7 @@ chai.should();
       });
 
       it('should store a token', function () {
-        return tokenStore.storeAccessToken(token, clientId, expires, user);
+        return tokenStore.storeAccessToken(token, clientId, expires.toDate(), user);
       });
 
       it('should retrieve a token', function () {
@@ -79,11 +79,9 @@ chai.should();
         return tokenStore.getAccessToken(token)
           .then((result) => {
             // allow some wiggle-room for the ttl implementation
-            var lowerBound = new Date(expires);
-            var upperBound = new Date(expires);
-            lowerBound.setMinutes(lowerBound.getMinutes() - 1);
-            upperBound.setMinutes(upperBound.getMinutes() + 1);
-            result.expires.should.be.within(lowerBound, upperBound);
+            var lowerBound = expires.clone().subtract(1, 'minutes');
+            var upperBound = expires.clone().add(1, 'minutes');
+            result.expires.should.be.within(lowerBound.toDate(), upperBound.toDate());
           })
           .catch((error) => {
             throw error;

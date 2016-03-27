@@ -32,6 +32,7 @@
     "dbc-node-borchk": "^2.0.1",
     "express": "4.13.4",
     "lodash": "^3.10.1",
+    "moment": "^2.12.0",
     "oauth2-server": "^2.4.1",
     "redis": "^2.0.0",
     "socket.io": "1.3.7"
@@ -44,6 +45,7 @@
     "eslint": "^1.0.0",
     "mocha": "^2.4.5",
     "sinon": "^1.17.3",
+    "supertest": "1.2.0",
     "supervisor": "^0.9.1"
   }
 }
