@@ -1,6 +1,10 @@
 'use strict';
 
 export default class UserStore {
+  static requiredOptions() {
+    return [];
+  }
+
   constructor() {
     this.users = {};
   }

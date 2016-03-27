@@ -1,6 +1,9 @@
 'use strict';
 
 class TokenStore {
+  static requiredOptions() {
+    return [];
+  }
 
   constructor() {
     this.clients = {};
