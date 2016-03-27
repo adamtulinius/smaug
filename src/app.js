@@ -1,15 +1,34 @@
 'use strict';
 
+import fs from 'fs';
+import minimist from 'minimist';
 import {log} from './utils';
 import createApp from './expressapp';
-import TokenStore from './oauth/tokenstore/redis';
-import UserStore from './oauth/userstore/borchk';
+
+const args = minimist(process.argv.slice(2));
+const config = JSON.parse(
+  fs.readFileSync(
+    args.f || __dirname + '/../config.json', 'utf8'));
+
+const TokenStore = require('./oauth/tokenstore/' + (config.tokenstore.backend || 'inmemory'));
+const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'inmemory'));
+
+[
+  {store: TokenStore, config: config.tokenstore},
+  {store: UserStore, config: config.userstore}
+].forEach((configuredStore) => {
+  configuredStore.store.requiredOptions().forEach((requiredOption) => {
+    if (typeof configuredStore.config.config[requiredOption] === 'undefined') {
+      throw new Error('Missing option for ' + configuredStore.config.backend + ': ' + requiredOption);
+    }
+  });
+});
 
 // Setup
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
 const app = createApp(
-  new TokenStore(),
-  new UserStore('https://borchk.addi.dk/2.4/borchk.wsdl', 'bibliotek.dk')
+  new TokenStore(config.tokenstore.config),
+  new UserStore(config.userstore.config)
 );
 
 // Starting server

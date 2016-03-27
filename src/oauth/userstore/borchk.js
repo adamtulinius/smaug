@@ -4,10 +4,12 @@ import {log} from '../../utils';
 import BorchkServiceClient from 'dbc-node-borchk';
 
 export default class UserStore {
-  constructor(wsdl, serviceRequester) {
-    this.config = {};
-    this.config.wsdl = wsdl;
-    this.config.serviceRequester = serviceRequester;
+  static requiredOptions() {
+    return ['wsdl', 'serviceRequester'];
+  }
+
+  constructor(config) {
+    this.config = config;
 
     this.borchkClient = new BorchkServiceClient({
       wsdl: this.config.wsdl,

@@ -9,6 +9,9 @@ import clients from '../clientregister.js';
  */
 
 class TokenStore {
+  static requiredOptions() {
+    return [];
+  }
 
   constructor() {
     // initialize redis client
