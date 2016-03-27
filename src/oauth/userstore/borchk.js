@@ -4,11 +4,10 @@ import {log} from '../../utils';
 import BorchkServiceClient from 'dbc-node-borchk';
 
 export default class UserStore {
-  constructor(wsdl, serviceRequester, libraryCode) {
+  constructor(wsdl, serviceRequester) {
     this.config = {};
     this.config.wsdl = wsdl;
     this.config.serviceRequester = serviceRequester;
-    this.config.libraryCode = libraryCode;
 
     this.borchkClient = new BorchkServiceClient({
       wsdl: this.config.wsdl,
@@ -25,10 +24,14 @@ export default class UserStore {
   getUser (username, password) {
     log.info('borchk.getUser', {user: username});
 
+    var xs = username.split('$', 2);
+    var libraryId = xs[0];
+    var userId = xs[1];
+
     const borchkRequest = {
-      userId: username,
+      userId: userId,
       userPincode: password,
-      libraryCode: this.config.libraryCode
+      libraryCode: libraryId
     };
 
     return this.borchkClient.getBorrowerCheckResult(borchkRequest)

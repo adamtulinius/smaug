@@ -11,7 +11,7 @@ describe('borchk', function () {
   var userStore = null;
 
   before(function () {
-    userStore = new UserStore('https://borchk.addi.dk/2.4/borchk.wsdl', 'bibliotek.dk', 'DK-725000');
+    userStore = new UserStore('https://borchk.addi.dk/2.4/borchk.wsdl', 'bibliotek.dk');
   });
 
   // TODO: Figure out how to check that login works

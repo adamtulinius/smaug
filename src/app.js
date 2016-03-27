@@ -9,7 +9,7 @@ import UserStore from './oauth/userstore/borchk';
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
 const app = createApp(
   new TokenStore(),
-  new UserStore('https://borchk.addi.dk/2.4/borchk.wsdl', 'bibliotek.dk', 'DK-714700')
+  new UserStore('https://borchk.addi.dk/2.4/borchk.wsdl', 'bibliotek.dk')
 );
 
 // Starting server
