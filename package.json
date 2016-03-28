@@ -7,7 +7,7 @@
     "dev": "npm run serve -s",
     "lint": "eslint ./src",
     "lint:checkstyle": "eslint ./src -o report.xml -f checkstyle",
-    "serve": "supervisor --instant-kill -w src,node_modules src/main.js",
+    "serve": "supervisor --instant-kill -w src,node_modules -- src/main.js -f config.json",
     "start": "node src/main.js",
     "test": "LOG_LEVEL=off mocha --compilers js:babel/register --recursive src/**/__tests__/*"
   },
