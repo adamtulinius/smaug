@@ -8,5 +8,17 @@
   },
   "tokenstore": {
     "backend": "redis"
+  },
+  "configstore": {
+    "backend": "static",
+    "config": {
+      "this": {
+        "will": {
+          "be": {
+            "the": "config"
+          }
+        }
+      }
+    }
   }
 }

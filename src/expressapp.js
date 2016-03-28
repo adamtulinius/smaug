@@ -7,7 +7,7 @@ import Model from './oauth/twolevel.model.js';
 import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
 import throttle from './throttle/throttle.middleware.js';
 
-export default function createApp(tokenStore, userStore) {
+export default function createApp(tokenStore, userStore, configStore) {
   var app = express();
 
   app.oauth = OAuth2Server({
@@ -23,6 +23,24 @@ export default function createApp(tokenStore, userStore) {
 
   app.get('/', function (req, res) {
     res.send('Helpful text about Smaug.');
+  });
+
+  app.get('/configuration', (req, res, next) => {
+    var bearerToken = req.query.token;
+
+    tokenStore.getAccessToken(bearerToken)
+      .then(() => {
+        configStore.get(bearerToken)
+          .then((config) => {
+            res.send(JSON.stringify(config));
+          })
+          .catch((err) => {
+            return next(err);
+          });
+      })
+      .catch((err) => {
+        return next(err);
+      });
   });
 
   app.all('/oauth/token', app.oauth.grant());

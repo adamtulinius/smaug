@@ -12,10 +12,12 @@ const config = JSON.parse(
 
 const TokenStore = require('./oauth/tokenstore/' + (config.tokenstore.backend || 'inmemory'));
 const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'inmemory'));
+const ConfigurationStore = require('./oauth/configstore/' + (config.configstore.backend || 'static'));
 
 [
   {store: TokenStore, config: config.tokenstore},
-  {store: UserStore, config: config.userstore}
+  {store: UserStore, config: config.userstore},
+  {store: ConfigurationStore, config: config.configstore}
 ].forEach((configuredStore) => {
   configuredStore.store.requiredOptions().forEach((requiredOption) => {
     if (typeof configuredStore.config.config[requiredOption] === 'undefined') {
@@ -28,7 +30,8 @@ const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'i
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
 const app = createApp(
   new TokenStore(config.tokenstore.config),
-  new UserStore(config.userstore.config)
+  new UserStore(config.userstore.config),
+  new ConfigurationStore(config.configstore.config)
 );
 
 // Starting server

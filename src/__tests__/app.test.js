@@ -6,6 +6,8 @@ import Chance from 'chance';
 import request from 'supertest';
 import createapp from '../expressapp';
 import TokenStore from '../oauth/tokenstore/inmemory';
+import UserStore from '../oauth/userstore/inmemory';
+import ConfigStore from '../oauth/configstore/static';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -15,15 +17,20 @@ describe('web app', function () {
   var chance = null;
   var clientId = null;
   var clientSecret = null;
+  var config = null;
+  var bearerToken = null;
 
   before(function () {
     chance = new Chance();
     clientId = chance.word({length: 10});
     clientSecret = chance.string();
+    config = {a: 'config'};
 
     var tokenStore = new TokenStore();
+    var userStore = new UserStore();
+    var configStore = new ConfigStore(config);
     tokenStore.storeClient(clientId, clientSecret);
-    app = createapp(tokenStore);
+    app = createapp(tokenStore, userStore, configStore);
   });
 
   it('should respond with 200 on /', function (done) {
@@ -46,6 +53,17 @@ describe('web app', function () {
         token.should.have.property('access_token').with.length(40);
         token.should.have.property('expires_in');
         token.token_type.should.equal('bearer');
+        bearerToken = token.access_token;
+      })
+      .expect(200, done);
+  });
+
+  it('should return configuration when queried for it with a token', function(done) {
+    request(app)
+      .get('/configuration?token=' + bearerToken)
+      .expect(function(res) {
+        var returnedConfig = JSON.parse(res.text);
+        returnedConfig.should.deep.equal(config);
       })
       .expect(200, done);
   });
