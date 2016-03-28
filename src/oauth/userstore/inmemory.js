@@ -5,8 +5,8 @@ export default class UserStore {
     return [];
   }
 
-  constructor() {
-    this.users = {};
+  constructor(config = {}) {
+    this.users = config.users || {};
   }
 
   ping() {

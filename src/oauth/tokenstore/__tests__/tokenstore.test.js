@@ -4,12 +4,24 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import moment from 'moment';
+import InmemoryTokenStore from '../inmemory';
+import RedisTokenStore from '../redis';
 
 chai.use(chaiAsPromised);
 chai.should();
 
-['inmemory', 'redis'].forEach((tokenStoreName) => {
-  describe(tokenStoreName + ' TokenStore', () => {
+var backends = {
+  inmemory: () => {
+    return new InmemoryTokenStore();
+  },
+  redis: () => {
+    return new RedisTokenStore();
+  }
+};
+
+
+Object.keys(backends).forEach((backendName) => {
+  describe(backendName + ' TokenStore', () => {
     var chance = new Chance();
     var tokenStore = null;
     var token = chance.string();
@@ -19,8 +31,7 @@ chai.should();
     var user = {id: chance.string()};
 
     it('should initialize', function () {
-      var TokenStore = require('../' + tokenStoreName);
-      tokenStore = new TokenStore();
+      tokenStore = new backends[backendName]();
       return tokenStore.ping().should.be.fulfilled;
     });
 

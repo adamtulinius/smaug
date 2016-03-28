@@ -1,13 +1,15 @@
 'use strict';
 
+import moment from 'moment';
+
 class TokenStore {
   static requiredOptions() {
     return [];
   }
 
-  constructor() {
-    this.clients = {};
-    this.tokens = {};
+  constructor(config = {}) {
+    this.clients = config.clients || {};
+    this.tokens = config.tokens || {};
   }
 
 
@@ -66,13 +68,12 @@ class TokenStore {
   storeAccessToken(accessToken, clientId, expires, user) {
     const tokens = this.tokens;
 
-    return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
-      tokens[accessToken] = {
-        clientId: clientId,
-        userId: user.id,
-        expires: expires};
-      resolve();
-    });
+    tokens[accessToken] = {
+      clientId: clientId,
+      userId: user.id,
+      expires: expires.toISOString()};
+
+    return Promise.resolve();
   }
 
 
@@ -86,8 +87,13 @@ class TokenStore {
 
     return new Promise(function (resolve, reject) {
       var result = tokens[bearerToken];
+      if (typeof result === 'undefined') {
+        reject();
+      }
 
-      if (result !== undefined && result.expires > (new Date())) { // eslint-disable-line no-undefined
+      result.expires = moment(result.expires).toDate();
+
+      if (result.expires > (new Date())) {
         result.accessToken = bearerToken;
         resolve(result);
       }
