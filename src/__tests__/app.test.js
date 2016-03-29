@@ -7,7 +7,7 @@ import request from 'supertest';
 import createapp from '../expressapp';
 import TokenStore from '../oauth/tokenstore/inmemory';
 import UserStore from '../oauth/userstore/inmemory';
-import ConfigStore from '../oauth/configstore/static';
+import ConfigStore from '../oauth/configstore/inmemory';
 
 chai.use(chaiAsPromised);
 chai.should();
