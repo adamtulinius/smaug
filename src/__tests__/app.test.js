@@ -17,6 +17,8 @@ describe('web app', function () {
   var chance = null;
   var clientId = null;
   var clientSecret = null;
+  var username = null;
+  var password = null;
   var config = null;
   var bearerToken = null;
 
@@ -24,12 +26,15 @@ describe('web app', function () {
     chance = new Chance();
     clientId = chance.word({length: 10});
     clientSecret = chance.string();
+    username = chance.word({length: 10});
+    password = chance.string();
     config = {a: 'config'};
 
     var tokenStore = new TokenStore();
     var userStore = new UserStore();
     var configStore = new ConfigStore(config);
     tokenStore.storeClient(clientId, clientSecret);
+    userStore.storeUser(username, password);
     app = createapp(tokenStore, userStore, configStore);
   });
 
@@ -54,6 +59,25 @@ describe('web app', function () {
         token.should.have.property('expires_in');
         token.token_type.should.equal('bearer');
         bearerToken = token.access_token;
+      })
+      .expect(200, done);
+  });
+
+  it('should return a token when logging in with password', function (done) {
+    request(app)
+      .post('/oauth/token')
+      .auth(clientId, clientSecret)
+      .type('form')
+      .send({
+        grant_type: 'password',
+        username: username,
+        password: password
+      })
+      .expect(function(res) {
+        var token = JSON.parse(res.text);
+        token.should.have.property('access_token').with.length(40);
+        token.should.have.property('expires_in');
+        token.token_type.should.equal('bearer');
       })
       .expect(200, done);
   });
