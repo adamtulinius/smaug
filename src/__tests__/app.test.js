@@ -32,7 +32,7 @@ describe('web app', function () {
 
     var tokenStore = new TokenStore();
     var userStore = new UserStore();
-    var configStore = new ConfigStore(config);
+    var configStore = new ConfigStore(tokenStore, config);
     tokenStore.storeClient(clientId, clientSecret);
     userStore.storeUser(username, password);
     app = createapp(tokenStore, userStore, configStore);

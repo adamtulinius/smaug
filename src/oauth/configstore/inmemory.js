@@ -5,7 +5,8 @@ export default class ConfigurationStore {
     return [];
   }
 
-  constructor(config) {
+  constructor(tokenStore, config) {
+    this.tokenStore = tokenStore;
     this.config = config || {};
   }
 
