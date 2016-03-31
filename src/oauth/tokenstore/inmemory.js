@@ -88,7 +88,7 @@ class TokenStore {
     return new Promise(function (resolve, reject) {
       var result = tokens[bearerToken];
       if (typeof result === 'undefined') {
-        reject();
+        reject(new Error('token not found'));
       }
 
       result.expires = moment(result.expires).toDate();
@@ -98,7 +98,7 @@ class TokenStore {
         resolve(result);
       }
       else {
-        reject();
+        reject(new Error('token expired'));
       }
     });
   }
