@@ -2,7 +2,6 @@
 
 import moment from 'moment';
 import redis from 'redis';
-import clients from '../clientregister.js';
 
 /**
  * @file Access/Store tokens and clients in Redis.
@@ -16,12 +15,6 @@ class TokenStore {
   constructor() {
     // initialize redis client
     this.redisClient = redis.createClient();
-    // store all clients in redis
-    for (let clientId in clients) {
-      if ({}.hasOwnProperty.call(clients, clientId)) {
-        this.storeClient(clientId, clients[clientId]);
-      }
-    }
   }
 
 
