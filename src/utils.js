@@ -69,3 +69,16 @@ export const log = {
   error: (msg, args) => doLog('error', msg, args),
   debug: (msg, args) => doLog('debug', msg, args)
 };
+
+
+export function userEncode(libraryId, userId) {
+  return userId + '@' + libraryId;
+}
+
+export function userDecode(username) {
+  var splitPoint = username.lastIndexOf('@');
+  return {
+    id: username.substring(0, splitPoint),
+    libraryId: username.substring(splitPoint+1, username.length)
+  };
+}

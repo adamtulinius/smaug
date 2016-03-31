@@ -21,12 +21,18 @@ describe('borchk', function () {
   // it('should succeed with valid credentials', function () {
   //   var username = '';
   //   var password = '';
-  //   return userStore.getUser(username, password).should.eventually.have.property('id', username);
+  //   var user = userStore.getUser(username, password);
+  //
+  //   return Promise.all([
+  //     user.should.eventually.not.equal(false),
+  //     user.should.eventually.have.property('id', username)
+  //   ]);
   // });
 
   it('should fail with invalid credentials', function () {
     var username = 'invalid-username';
     var password = 'wrong-password';
-    return userStore.getUser(username, password).should.eventually.equal(false);
+    var user = userStore.getUser(username, password);
+    return user.should.eventually.equal(false);
   });
 });
