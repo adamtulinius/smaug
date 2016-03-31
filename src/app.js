@@ -28,10 +28,15 @@ const ConfigurationStore = require('./oauth/configstore/' + (config.configstore.
 
 // Setup
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
+
+var tokenStore = new TokenStore(config.tokenstore.config);
+var userStore = new UserStore(config.userstore.config);
+var configurationStore = new ConfigurationStore(tokenStore, config.configstore.config);
+
 const app = createApp(
-  new TokenStore(config.tokenstore.config),
-  new UserStore(config.userstore.config),
-  new ConfigurationStore(config.configstore.config)
+  tokenStore,
+  userStore,
+  configurationStore
 );
 
 // Starting server

@@ -28,11 +28,16 @@ describe('web app', function () {
     clientSecret = chance.string();
     username = chance.word({length: 10});
     password = chance.string();
-    config = {a: 'config'};
+    config = {
+      default: {foo: 'default'},
+      libraries: {
+        '000000': {foo: '000000'}
+      }
+    };
 
     var tokenStore = new TokenStore();
     var userStore = new UserStore();
-    var configStore = new ConfigStore(config);
+    var configStore = new ConfigStore(tokenStore, config);
     tokenStore.storeClient(clientId, clientSecret);
     userStore.storeUser(username, password);
     app = createapp(tokenStore, userStore, configStore);
@@ -87,7 +92,7 @@ describe('web app', function () {
       .get('/configuration?token=' + bearerToken)
       .expect(function(res) {
         var returnedConfig = JSON.parse(res.text);
-        returnedConfig.should.deep.equal(config);
+        returnedConfig.should.deep.equal(config.default);
       })
       .expect(200, done);
   });
