@@ -2,7 +2,6 @@
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import Chance from 'chance';
 import ConfigStore from '../inmemory';
 import TokenStore from '../../tokenstore/inmemory';
 
@@ -10,7 +9,6 @@ chai.use(chaiAsPromised);
 chai.should();
 
 describe('inmemory ConfigStore', function () {
-  var chance = new Chance();
   var configStore = null;
   var config = {
     default: {foo: 'default'},
