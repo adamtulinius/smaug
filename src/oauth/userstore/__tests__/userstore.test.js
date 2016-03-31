@@ -4,6 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import InmemoryUserStore from '../inmemory';
+import {userEncode} from '../../../utils';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -22,7 +23,9 @@ Object.keys(backends).forEach((backendName) => {
     var password = null;
 
     before(function () {
-      username = 'DK-' + chance.word({length: 6}) + '$' + chance.word({length: 10});
+      var libraryId = chance.word({length: 6});
+      var userId = chance.word({length: 10});
+      username = userEncode(libraryId, userId);
       password = chance.word({length: 10});
     });
 

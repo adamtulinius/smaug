@@ -1,6 +1,6 @@
 'use strict';
 
-import {log} from '../../utils';
+import {log, userDecode} from '../../utils';
 import BorchkServiceClient from 'dbc-node-borchk';
 
 export default class UserStore {
@@ -26,14 +26,12 @@ export default class UserStore {
   getUser (username, password) {
     log.info('borchk.getUser', {user: username});
 
-    var xs = username.split('$', 2);
-    var libraryId = xs[0];
-    var userId = xs[1];
+    var user = userDecode(username);
 
     const borchkRequest = {
-      userId: userId,
+      userId: user.id,
       userPincode: password,
-      libraryCode: libraryId
+      libraryCode: 'DK-' + user.libraryId
     };
 
     return this.borchkClient.getBorrowerCheckResult(borchkRequest)
