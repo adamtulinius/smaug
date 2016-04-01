@@ -34,6 +34,7 @@ var userStore = new UserStore(config.userstore.config);
 var configurationStore = new ConfigurationStore(tokenStore, config.configstore.config);
 
 const app = createApp(
+  config,
   tokenStore,
   userStore,
   configurationStore

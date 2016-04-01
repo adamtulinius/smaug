@@ -8,6 +8,7 @@ import createapp from '../expressapp';
 import TokenStore from '../oauth/tokenstore/inmemory';
 import UserStore from '../oauth/userstore/inmemory';
 import ConfigStore from '../oauth/configstore/inmemory';
+import {userEncode} from '../utils';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -19,28 +20,30 @@ describe('web app', function () {
   var clientSecret = null;
   var username = null;
   var password = null;
-  var config = null;
+  var appConfig = null;
+  var configStoreConfig = null;
   var bearerToken = null;
 
   before(function () {
     chance = new Chance();
     clientId = chance.word({length: 10});
     clientSecret = chance.string();
-    username = chance.word({length: 10});
+    username = userEncode('123456', chance.word({length: 10}));
     password = chance.string();
-    config = {
+    appConfig = {defaultLibraryId: '000000'};
+    configStoreConfig = {
       default: {foo: 'default'},
       libraries: {
-        '000000': {foo: '000000'}
+        123456: {foo: '123456'}
       }
     };
 
     var tokenStore = new TokenStore();
     var userStore = new UserStore();
-    var configStore = new ConfigStore(tokenStore, config);
+    var configStore = new ConfigStore(tokenStore, configStoreConfig);
     tokenStore.storeClient(clientId, clientSecret);
     userStore.storeUser(username, password);
-    app = createapp(tokenStore, userStore, configStore);
+    app = createapp(appConfig, tokenStore, userStore, configStore);
   });
 
   it('should respond with 200 on /', function (done) {
@@ -81,12 +84,32 @@ describe('web app', function () {
       .expect(200, done);
   });
 
+  it('should return a token when logging in as anonymous', function (done) {
+    request(app)
+      .post('/oauth/token')
+      .auth(clientId, clientSecret)
+      .type('form')
+      .send({
+        grant_type: 'password',
+        username: userEncode(null, null),
+        password: userEncode(null, null)
+      })
+      .expect(function(res) {
+        var token = JSON.parse(res.text);
+        token.should.have.property('access_token').with.length(40);
+        token.should.have.property('expires_in');
+        token.token_type.should.equal('bearer');
+        bearerToken = token.access_token;
+      })
+      .expect(200, done);
+  });
+
   it('should return configuration when queried for it with a token', function(done) {
     request(app)
       .get('/configuration?token=' + bearerToken)
       .expect(function(res) {
         var returnedConfig = JSON.parse(res.text);
-        returnedConfig.should.deep.equal(config.default);
+        returnedConfig.should.deep.equal(configStoreConfig.default);
       })
       .expect(200, done);
   });

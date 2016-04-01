@@ -26,5 +26,25 @@ describe('utils', function () {
       user.id.should.equal(userId);
       user.libraryId.should.equal(libraryId);
     });
+
+    describe('encode', function() {
+      it('should be able to create anonymous usernames', function () {
+        var username = userEncode(null, null);
+        username.should.equal('@');
+      });
+
+      it('should be able to create anonymous library-specific usernames', function () {
+        var username = userEncode(libraryId, null);
+        username.should.equal('@' + libraryId);
+      });
+    });
+
+    describe('decode', function() {
+      it('should be able to decode anonymous library-specific usernames', function () {
+        var user = userDecode('@' + libraryId);
+        user.should.not.have.property('id');
+        user.should.have.property('libraryId', libraryId);
+      });
+    });
   });
 });
