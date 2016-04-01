@@ -59,14 +59,13 @@ export class Model {
   }
 
   getUser (username, password, callback) {
-    const borchk = this.userStore.getUser(username, password);
-    borchk
+    this.userStore.getUser(username, password)
       .then((user) => {
         if (user) {
           callback(null, user);
         }
         else {
-          // if borchk fails
+          // if getUser fails
           // register username
           throttler.registerAuthFailure(username);
           // and return a non-informative auth error
@@ -74,7 +73,6 @@ export class Model {
         }
       })
       .catch((err) => {
-        // other borchk errors
         callback(err, null);
       });
   }
