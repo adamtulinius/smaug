@@ -2,7 +2,6 @@
 
 import {hostname} from 'os';
 import process from 'process';
-import _ from 'lodash';
 import {name, version} from '../package.json';
 
 
@@ -58,7 +57,7 @@ function doLog(level, msg, args) {
   };
 
   if (currentNumericalLogLevel >= targetNumericalLogLevel) {
-    console.log(JSON.stringify(_.merge(blob, args))); // eslint-disable-line no-console
+    console.log(JSON.stringify(Object.assign(blob, args))); // eslint-disable-line no-console
   }
 }
 
