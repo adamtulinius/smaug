@@ -12,7 +12,7 @@ export default function createApp(tokenStore, userStore, configStore) {
 
   app.oauth = OAuth2Server({
     model: new Model(tokenStore, userStore),
-    grants: ['password', 'client_credentials'],
+    grants: ['password'],
     debug: true
   });
 
