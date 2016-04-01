@@ -44,7 +44,7 @@ export default function createApp(tokenStore, userStore, configStore) {
       });
   });
 
-  app.all('/oauth/token', app.oauth.grant());
+  app.post('/oauth/token', app.oauth.grant());
 
 
 // Examples of OAuth middleware
