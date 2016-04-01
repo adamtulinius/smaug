@@ -1,7 +1,6 @@
 'use strict';
 
 import {log} from '../utils';
-import contains from 'lodash';
 import Throttler from '../throttle/throttle.js';
 
 /**
@@ -50,8 +49,8 @@ export class Model {
   }
 
   grantTypeAllowed (clientId, grantType, callback) {
-    // All clients should be allowed to used password and client_credentials
-    if (contains(['password', 'client_credentials'], grantType)) {
+    // Only password allowed
+    if (grantType === 'password') {
       callback(null, true);
     }
     else {

@@ -49,7 +49,7 @@ describe('web app', function () {
       .expect(200, done);
   });
 
-  it('should return a token when logging in with client-id and -secret', function (done) {
+  it('should fail when logging in with client credentials', function (done) {
     request(app)
       .post('/oauth/token')
       .type('form')
@@ -58,14 +58,7 @@ describe('web app', function () {
         client_id: clientId,
         client_secret: clientSecret
       })
-      .expect(function(res) {
-        var token = JSON.parse(res.text);
-        token.should.have.property('access_token').with.length(40);
-        token.should.have.property('expires_in');
-        token.token_type.should.equal('bearer');
-        bearerToken = token.access_token;
-      })
-      .expect(200, done);
+      .expect(500, done);
   });
 
   it('should return a token when logging in with password', function (done) {
@@ -83,6 +76,7 @@ describe('web app', function () {
         token.should.have.property('access_token').with.length(40);
         token.should.have.property('expires_in');
         token.token_type.should.equal('bearer');
+        bearerToken = token.access_token;
       })
       .expect(200, done);
   });
