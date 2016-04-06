@@ -5,7 +5,6 @@ import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
-import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
 // import throttle from './throttle/throttle.middleware.js';
 import {userEncode} from './utils';
 
@@ -63,16 +62,6 @@ export default function createApp(config, tokenStore, userStore, configStore) {
     next();
   });
   app.post('/oauth/token', app.oauth.grant());
-
-
-// Examples of OAuth middleware
-  app.get('/secret', app.oauth.authorise(), authorizePartial(), function (req, res) {
-    res.send('Secret area');
-  });
-
-  app.get('/test', app.oauth.authorise(), authorizeFull(), function (req, res) {
-    res.send('Super secret area');
-  });
 
   return app;
 }
