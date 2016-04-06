@@ -71,13 +71,18 @@ export const log = {
 
 
 export function userEncode(libraryId, userId) {
-  return userId + '@' + libraryId;
+  return (userId || '') + '@' + (libraryId || '');
 }
 
 export function userDecode(username) {
   var splitPoint = username.lastIndexOf('@');
-  return {
-    id: username.substring(0, splitPoint),
-    libraryId: username.substring(splitPoint+1, username.length)
-  };
+  var userId = username.substring(0, splitPoint);
+  var libraryId = username.substring(splitPoint+1, username.length);
+  var user = {libraryId: libraryId};
+
+  if (userId) {
+    user.id = userId;
+  }
+
+  return user;
 }

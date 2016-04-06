@@ -27,16 +27,19 @@ export default class UserStore {
     log.info('borchk.getUser', {user: username});
 
     var user = userDecode(username);
+    var defaultBorchkUser = 0;
 
     const borchkRequest = {
-      userId: user.id,
+      userId: user.id || defaultBorchkUser,
       userPincode: password,
       libraryCode: 'DK-' + user.libraryId
     };
 
     return this.borchkClient.getBorrowerCheckResult(borchkRequest)
       .then((reply) => {
-        const isAuthenticated = reply.requestStatus === 'ok';
+        const actualUserAuthenticated = reply.requestStatus === 'ok';
+        const imaginaryUserAuthenticated = reply.requestStatus === 'borrower_not_found' && typeof user.id === 'undefined' && typeof username === 'string' && username === password;
+        const isAuthenticated = actualUserAuthenticated || imaginaryUserAuthenticated;
         log.info('borchk.getUser', {user: username, authenticated: isAuthenticated});
         return isAuthenticated ? {id: username} : false; // TODO: is username/cpr the right userid?
       })

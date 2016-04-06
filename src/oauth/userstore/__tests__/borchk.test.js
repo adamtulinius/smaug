@@ -3,6 +3,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import UserStore from '../borchk';
+import {userEncode} from '../../../utils';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -17,17 +18,24 @@ describe('borchk', function () {
     });
   });
 
-  // TODO: Figure out how to check that login works
-  // it('should succeed with valid credentials', function () {
-  //   var username = '';
-  //   var password = '';
-  //   var user = userStore.getUser(username, password);
-  //
-  //   return Promise.all([
-  //     user.should.eventually.not.equal(false),
-  //     user.should.eventually.have.property('id', username)
-  //   ]);
-  // });
+  xit('should succeed with anonymous credentials', function () {
+    var username = userEncode(716500, null);
+    var password = username;
+    var user = userStore.getUser(username, password);
+
+    return Promise.all([
+      user.should.eventually.not.equal(false),
+      user.should.eventually.have.property('id', username)
+    ]);
+  });
+
+  it('should fail with anonymous credentials and wrong password', function () {
+    var username = userEncode(716500, null);
+    var password = 'wrong-password';
+    var user = userStore.getUser(username, password);
+
+    return user.should.eventually.equal(false);
+  });
 
   it('should fail with invalid credentials', function () {
     var username = 'invalid-username';
