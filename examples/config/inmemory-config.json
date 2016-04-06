@@ -1,0 +1,57 @@
+{
+  "defaultLibraryId": "000000",
+  "userstore": {
+    "backend": "inmemory",
+    "config": {
+      "users": {
+        "donald@010101": "duck"
+      }
+    }
+  },
+  "tokenstore": {
+    "backend": "inmemory",
+    "config": {
+      "clients": {
+        "donaldPhone": "duck"
+      },
+      "tokens": {
+        "qwerty": {
+          "userId": "donald@010101",
+          "clientId": "donaldPhone",
+          "expires": "2020-01-01T00:00:00Z"
+        }
+      }
+    }
+  },
+  "configstore": {
+    "backend": "inmemory",
+    "config": {
+      "default": {
+        "this": {
+          "will": {
+            "be": {
+              "the": {
+                "default": "config"
+              }
+            }
+          }
+        }
+      },
+      "libraries": {
+        "000000": {
+          "for": "000000",
+          "foo": "quux"
+        },
+        "000001": {
+          "for": "000001",
+          "foo": "bar"
+        }
+      },
+      "users": {
+        "donald@000000" : {
+          "foo": "quack"
+        }
+      }
+    }
+  }
+}
