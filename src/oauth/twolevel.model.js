@@ -1,13 +1,13 @@
 'use strict';
 
 import {log} from '../utils';
-import Throttler from '../throttle/throttle.js';
+// import Throttler from '../throttle/throttle.js';
 
 /**
  * @file Model used by the OAuth2 Server for Resource-Owner
  */
 
-const throttler = new Throttler();
+// const throttler = new Throttler();
 
 export class Model {
   constructor(tokenStore, userStore) {
@@ -67,7 +67,7 @@ export class Model {
         else {
           // if getUser fails
           // register username
-          throttler.registerAuthFailure(username);
+          // throttler.registerAuthFailure(username);
           // and return a non-informative auth error
           callback(new Error('authentication error'), null);
         }
