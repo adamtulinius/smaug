@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
 import {authorizeFull, authorizePartial} from './oauth/twolevel.middleware.js';
-import throttle from './throttle/throttle.middleware.js';
+// import throttle from './throttle/throttle.middleware.js';
 import {userEncode} from './utils';
 
 export default function createApp(config, tokenStore, userStore, configStore) {
@@ -22,7 +22,7 @@ export default function createApp(config, tokenStore, userStore, configStore) {
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
   app.use(app.oauth.errorHandler());
-  app.use(throttle());
+  // app.use(throttle());
 
   app.get('/', function (req, res) {
     res.send('Helpful text about Smaug.');
