@@ -35,7 +35,7 @@ export default function createApp(config, tokenStore, userStore, configStore) {
       .then(() => {
         configStore.get(bearerToken)
           .then((userConfig) => {
-            res.send(JSON.stringify(userConfig));
+            res.send(JSON.stringify(userConfig, null, req.query.pretty ? 2 : null));
           })
           .catch((err) => {
             return next(err);
