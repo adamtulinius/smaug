@@ -8,24 +8,23 @@ import Model from './oauth/twolevel.model.js';
 // import throttle from './throttle/throttle.middleware.js';
 import {userEncode} from './utils';
 
-export default function createApp(config, tokenStore, userStore, configStore) {
+function createBasicApp() {
   var app = express();
 
-  app.oauth = OAuth2Server({
-    model: new Model(tokenStore, userStore),
-    grants: ['password'],
-    debug: true
-  });
-
   app.disable('x-powered-by');
+
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
-  app.use(app.oauth.errorHandler());
-  // app.use(throttle());
 
   app.get('/', function (req, res) {
     res.send('Helpful text about Smaug.');
   });
+
+  return app;
+}
+
+export function createOAuthApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+  var app = createBasicApp();
 
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
@@ -44,6 +43,21 @@ export default function createApp(config, tokenStore, userStore, configStore) {
         return next(err);
       });
   });
+
+  return app;
+}
+
+export function createConfigurationApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+  var app = createBasicApp();
+
+  app.oauth = OAuth2Server({
+    model: new Model(tokenStore, userStore),
+    grants: ['password'],
+    debug: true
+  });
+
+  app.use(app.oauth.errorHandler());
+  // app.use(throttle());
 
   // Add implicit libraryId to anonymous user without libraryId, and change the password from accordingly.
   // The password must be equal to the username for an anonymous request, and userEncode(libraryId, null) returns the proper anonymous username/password for this
@@ -65,3 +79,14 @@ export default function createApp(config, tokenStore, userStore, configStore) {
 
   return app;
 }
+
+export function createApp(config, tokenStore, userStore, configStore) {
+  var app = express();
+
+  app.use(createConfigurationApp(config, tokenStore, userStore, configStore));
+  app.use(createOAuthApp(config, tokenStore, userStore, configStore));
+
+  return app;
+}
+
+export default createApp;
