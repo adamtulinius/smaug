@@ -8,7 +8,7 @@ import {createApp, createOAuthApp, createConfigurationApp} from './expressapp';
 const args = minimist(process.argv.slice(2));
 const config = JSON.parse(
   fs.readFileSync(
-    args.f || __dirname + '/../config.json', 'utf8'));
+    args.f || './config.json', 'utf8'));
 
 const TokenStore = require('./oauth/tokenstore/' + (config.tokenstore.backend || 'inmemory'));
 const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'inmemory'));
