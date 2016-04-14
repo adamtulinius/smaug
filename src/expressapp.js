@@ -23,7 +23,7 @@ function createBasicApp() {
   return app;
 }
 
-export function createOAuthApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+export function createConfigurationApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
   var app = createBasicApp();
 
   app.get('/configuration', (req, res, next) => {
@@ -47,7 +47,7 @@ export function createOAuthApp(config, tokenStore, userStore, configStore) { // 
   return app;
 }
 
-export function createConfigurationApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+export function createOAuthApp(config, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
   var app = createBasicApp();
 
   app.oauth = OAuth2Server({
