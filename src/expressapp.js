@@ -53,7 +53,8 @@ export function createConfigurationApp(config, tokenStore, userStore, configStor
   app.oauth = OAuth2Server({
     model: new Model(tokenStore, userStore),
     grants: ['password'],
-    debug: true
+    debug: true,
+    accessTokenLifetime: 60*60*24*30 // 30 days
   });
 
   app.use(app.oauth.errorHandler());
