@@ -10,11 +10,13 @@ const config = JSON.parse(
   fs.readFileSync(
     args.f || './config.json', 'utf8'));
 
+const ClientStore = require('./oauth/tokenstore/' + (config.clientstore.backend || 'inmemory'));
 const TokenStore = require('./oauth/tokenstore/' + (config.tokenstore.backend || 'inmemory'));
 const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'inmemory'));
 const ConfigurationStore = require('./oauth/configstore/' + (config.configstore.backend || 'static'));
 
 [
+  {store: ClientStore, config: config.clientstore},
   {store: TokenStore, config: config.tokenstore},
   {store: UserStore, config: config.userstore},
   {store: ConfigurationStore, config: config.configstore}
@@ -32,7 +34,8 @@ const oAuthPort = process.env.PORT_OAUTH || port; // eslint-disable-line no-proc
 const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-line no-process-env
 const splitMode = oAuthPort !== configurationPort;
 
-var tokenStore = new TokenStore(config.tokenstore.config);
+var clientStore = new ClientStore(config.clientstore.config);
+var tokenStore = new TokenStore(clientStore, config.tokenstore.config);
 var userStore = new UserStore(config.userstore.config);
 var configurationStore = new ConfigurationStore(tokenStore, config.configstore.config);
 

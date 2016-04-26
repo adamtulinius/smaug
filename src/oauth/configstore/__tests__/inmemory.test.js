@@ -2,6 +2,7 @@
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import ClientStore from '../../clientstore/inmemory';
 import ConfigStore from '../inmemory';
 import TokenStore from '../../tokenstore/inmemory';
 
@@ -46,10 +47,12 @@ describe('inmemory ConfigStore', function () {
     }
   };
 
+  var clientStore = null;
   var tokenStore = null;
 
   before(function () {
-    tokenStore = new TokenStore({tokens: tokens});
+    clientStore = new ClientStore();
+    tokenStore = new TokenStore(clientStore, {tokens: tokens});
     configStore = new ConfigStore(tokenStore, config);
   });
 
