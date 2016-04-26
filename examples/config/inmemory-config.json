@@ -8,12 +8,17 @@
       }
     }
   },
-  "tokenstore": {
+  "clientstore": {
     "backend": "inmemory",
     "config": {
       "clients": {
-        "donaldPhone": "duck"
-      },
+        "duckDevLTD": "duck"
+      }
+    }
+  },
+  "tokenstore": {
+    "backend": "inmemory",
+    "config": {
       "tokens": {
         "qwerty": {
           "userId": "donald@010101",

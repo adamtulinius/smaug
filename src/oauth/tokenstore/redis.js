@@ -12,7 +12,8 @@ class TokenStore {
     return [];
   }
 
-  constructor() {
+  constructor(clientStore) {
+    this.clientStore = clientStore;
     // initialize redis client
     this.redisClient = redis.createClient();
   }
@@ -38,48 +39,13 @@ class TokenStore {
 
 
   /**
-   * Stores a client key-value pair in redis.
-   * @param clientId
-   * @param clientSecret
-   */
-  storeClient(clientId, clientSecret) {
-    const redisClient = this.redisClient;
-    const key = 'clientId:' + clientId;
-
-    return new Promise((resolve, reject) => {
-      redisClient.set(key, clientSecret, (err, res) => {
-        if (err) {
-          reject(err);
-        }
-        else {
-          resolve(res);
-        }
-      });
-    });
-  }
-
-
-  /**
    * Gets a client from redis if the client exists. Note that a promise is returned.
    * @param clientId
    * @param clientSecret
    * @returns {Promise}
    */
   getClient(clientId, clientSecret) {
-    const redisClient = this.redisClient;
-
-    const key = 'clientId:' + clientId;
-    // create a promise for the command
-    return new Promise(function (resolve, reject) {
-      redisClient.get(key, function (err, reply) {
-        if (reply !== null && reply === clientSecret) {
-          resolve(reply);
-        }
-        else {
-          reject();
-        }
-      });
-    });
+    return this.clientStore.getAndValidate(clientId, clientSecret);
   }
 
 

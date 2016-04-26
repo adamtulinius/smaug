@@ -6,6 +6,7 @@ import Chance from 'chance';
 import moment from 'moment';
 import InmemoryTokenStore from '../inmemory';
 import RedisTokenStore from '../redis';
+import ClientStore from '../../clientstore/inmemory';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -24,6 +25,7 @@ Object.keys(backends).forEach((backendName) => {
   describe(backendName + ' TokenStore', () => {
     var chance = new Chance();
     var tokenStore = null;
+    var clientStore = null;
     var token = chance.string();
     var clientId = chance.string();
     var clientSecret = chance.string();
@@ -31,26 +33,10 @@ Object.keys(backends).forEach((backendName) => {
     var user = {id: chance.string()};
 
     it('should initialize', function () {
-      tokenStore = new backends[backendName]();
+      clientStore = new ClientStore();
+      clientStore.store(clientId, clientSecret);
+      tokenStore = new backends[backendName](clientStore);
       return tokenStore.ping().should.be.fulfilled;
-    });
-
-    describe('clients', function () {
-      it('should fail to retrieve an unknown client', function () {
-        return tokenStore.getClient('404', '404secret').should.be.rejected;
-      });
-
-      it('should store a client', function () {
-        return tokenStore.storeClient(clientId, clientSecret);
-      });
-
-      it('should retrieve a client', function () {
-        return tokenStore.getClient(clientId, clientSecret).should.eventually.equal(clientSecret);
-      });
-
-      it('should fail to retrieve a client with the wrong secret', function () {
-        return tokenStore.getClient(clientId, clientSecret + 'foo').should.be.rejected;
-      });
     });
 
     describe('tokens', function () {

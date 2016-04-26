@@ -7,7 +7,8 @@ class TokenStore {
     return [];
   }
 
-  constructor(config = {}) {
+  constructor(clientStore, config = {}) {
+    this.clientStore = clientStore;
     this.clients = config.clients || {};
     this.tokens = config.tokens || {};
   }
@@ -22,39 +23,13 @@ class TokenStore {
 
 
   /**
-   * Stores a client key-value pair.
-   * @param clientId
-   * @param clientSecret
-   */
-  storeClient(clientId, clientSecret) {
-    const clients = this.clients;
-
-    return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
-      clients[clientId] = clientSecret;
-      resolve();
-    });
-  }
-
-
-  /**
    * Gets a client if the client exists.
    * @param clientId
    * @param clientSecret
    * @returns {Promise}
    */
   getClient(clientId, clientSecret) {
-    const clients = this.clients;
-
-    return new Promise(function (resolve, reject) {
-      var actualClientSecret = clients[clientId];
-
-      if (actualClientSecret === clientSecret) {
-        resolve(actualClientSecret);
-      }
-      else {
-        reject();
-      }
-    });
+    return this.clientStore.getAndValidate(clientId, clientSecret);
   }
 
 

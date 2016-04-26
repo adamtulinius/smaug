@@ -8,6 +8,7 @@ import createapp from '../expressapp';
 import TokenStore from '../oauth/tokenstore/inmemory';
 import UserStore from '../oauth/userstore/inmemory';
 import ConfigStore from '../oauth/configstore/inmemory';
+import ClientStore from '../oauth/clientstore/inmemory';
 import {userEncode} from '../utils';
 
 chai.use(chaiAsPromised);
@@ -38,10 +39,11 @@ describe('web app', function () {
       }
     };
 
-    var tokenStore = new TokenStore();
+    var clientStore = new ClientStore();
+    var tokenStore = new TokenStore(clientStore);
     var userStore = new UserStore();
     var configStore = new ConfigStore(tokenStore, configStoreConfig);
-    tokenStore.storeClient(clientId, clientSecret);
+    clientStore.store(clientId, clientSecret);
     userStore.storeUser(username, password);
     app = createapp(appConfig, tokenStore, userStore, configStore);
   });
