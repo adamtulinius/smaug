@@ -12,8 +12,7 @@ class TokenStore {
     return [];
   }
 
-  constructor(clientStore) {
-    this.clientStore = clientStore;
+  constructor() {
     // initialize redis client
     this.redisClient = redis.createClient();
   }
@@ -35,17 +34,6 @@ class TokenStore {
         }
       });
     });
-  }
-
-
-  /**
-   * Gets a client from redis if the client exists. Note that a promise is returned.
-   * @param clientId
-   * @param clientSecret
-   * @returns {Promise}
-   */
-  getClient(clientId, clientSecret) {
-    return this.clientStore.getAndValidate(clientId, clientSecret);
   }
 
 

@@ -10,7 +10,8 @@ import {log} from '../utils';
 // const throttler = new Throttler();
 
 export class Model {
-  constructor(tokenStore, userStore) {
+  constructor(clientStore, tokenStore, userStore) {
+    this.clientStore = clientStore;
     this.tokenStore = tokenStore;
     this.userStore = userStore;
   }
@@ -36,7 +37,7 @@ export class Model {
   }
 
   getClient (clientId, clientSecret, callback) {
-    this.tokenStore.getClient(clientId, clientSecret)
+    this.clientStore.getAndValidate(clientId, clientSecret)
       .then(() => {
         // if found then return clientid else return false
         log.info('model.getClient success', {clientId: clientId});

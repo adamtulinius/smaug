@@ -23,17 +23,6 @@ class TokenStore {
 
 
   /**
-   * Gets a client if the client exists.
-   * @param clientId
-   * @param clientSecret
-   * @returns {Promise}
-   */
-  getClient(clientId, clientSecret) {
-    return this.clientStore.getAndValidate(clientId, clientSecret);
-  }
-
-
-  /**
    * Stores a set of accessToken
    * @param accessToken
    * @param clientId

@@ -6,7 +6,6 @@ import Chance from 'chance';
 import moment from 'moment';
 import InmemoryTokenStore from '../inmemory';
 import RedisTokenStore from '../redis';
-import ClientStore from '../../clientstore/inmemory';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -25,17 +24,13 @@ Object.keys(backends).forEach((backendName) => {
   describe(backendName + ' TokenStore', () => {
     var chance = new Chance();
     var tokenStore = null;
-    var clientStore = null;
     var token = chance.string();
     var clientId = chance.string();
-    var clientSecret = chance.string();
     var expires = moment().add(1, 'days');
     var user = {id: chance.string()};
 
     it('should initialize', function () {
-      clientStore = new ClientStore();
-      clientStore.store(clientId, clientSecret);
-      tokenStore = new backends[backendName](clientStore);
+      tokenStore = new backends[backendName]();
       return tokenStore.ping().should.be.fulfilled;
     });
 

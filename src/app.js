@@ -35,7 +35,7 @@ const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-lin
 const splitMode = oAuthPort !== configurationPort;
 
 var clientStore = new ClientStore(config.clientstore.config);
-var tokenStore = new TokenStore(clientStore, config.tokenstore.config);
+var tokenStore = new TokenStore(config.tokenstore.config);
 var userStore = new UserStore(config.userstore.config);
 var configurationStore = new ConfigurationStore(tokenStore, config.configstore.config);
 
@@ -43,6 +43,7 @@ var configurationStore = new ConfigurationStore(tokenStore, config.configstore.c
 if (splitMode) {
   var oAuthApp = createOAuthApp(
     config,
+    clientStore,
     tokenStore,
     userStore,
     configurationStore
@@ -50,6 +51,7 @@ if (splitMode) {
 
   var configurationApp = createConfigurationApp(
     config,
+    clientStore,
     tokenStore,
     userStore,
     configurationStore
@@ -66,6 +68,7 @@ if (splitMode) {
 else {
   var app = createApp(
     config,
+    clientStore,
     tokenStore,
     userStore,
     configurationStore
