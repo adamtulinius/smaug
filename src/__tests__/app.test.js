@@ -40,12 +40,12 @@ describe('web app', function () {
     };
 
     var clientStore = new ClientStore();
-    var tokenStore = new TokenStore(clientStore);
+    var tokenStore = new TokenStore();
     var userStore = new UserStore();
     var configStore = new ConfigStore(tokenStore, configStoreConfig);
     clientStore.store(clientId, clientSecret);
     userStore.storeUser(username, password);
-    app = createapp(appConfig, tokenStore, userStore, configStore);
+    app = createapp(appConfig, clientStore, tokenStore, userStore, configStore);
   });
 
   it('should respond with 200 on /', function (done) {
