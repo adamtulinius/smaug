@@ -92,4 +92,11 @@ export function createApp(config) {
   return app;
 }
 
+export function createAdminApp(config) {
+  var app = createBasicApp();
+  app.set('config', config);
+
+  return app;
+}
+
 export default createApp;

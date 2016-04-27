@@ -3,7 +3,7 @@
 import fs from 'fs';
 import minimist from 'minimist';
 import {log} from './utils';
-import {createApp, createOAuthApp, createConfigurationApp} from './expressapp';
+import {createApp, createAdminApp, createOAuthApp, createConfigurationApp} from './expressapp';
 
 const args = minimist(process.argv.slice(2));
 const config = JSON.parse(
@@ -12,6 +12,7 @@ const config = JSON.parse(
 
 // Setup
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
+const adminPort = process.env.PORT_ADMIN; // eslint-disable-line no-process-env
 const oAuthPort = process.env.PORT_OAUTH || port; // eslint-disable-line no-process-env
 const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-line no-process-env
 const splitMode = oAuthPort !== configurationPort;
@@ -48,6 +49,10 @@ else {
   // Since $oAuthPort and $configurationPort can be set to the same port, but might be different from $port,
   // it might be wrong to listen on $port when not in split mode.
   apps.push({express: createApp(config), port: oAuthPort});
+}
+
+if (typeof adminPort !== 'undefined') {
+  apps.push({express: createAdminApp(config), port: adminPort, name: 'admin'});
 }
 
 apps.forEach((app) => {
