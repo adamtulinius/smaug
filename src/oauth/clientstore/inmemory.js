@@ -5,7 +5,7 @@ export default class ClientStore {
     return [];
   }
 
-  constructor(config) {
+  constructor(stores, config) {
     this.clients = config || {};
   }
 

@@ -8,7 +8,7 @@ export default class UserStore {
     return ['wsdl', 'serviceRequester'];
   }
 
-  constructor(config) {
+  constructor(stores, config = {}) {
     this.config = config;
 
     this.borchkClient = new BorchkServiceClient({
