@@ -32,7 +32,7 @@ Object.keys(backends).forEach((backendName) => {
     });
 
     it('should initialize', function () {
-      userStore = backends[backendName]();
+      userStore = backends[backendName]({});
       return userStore.ping().should.be.fulfilled;
     });
 

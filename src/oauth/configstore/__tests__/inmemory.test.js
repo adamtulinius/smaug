@@ -10,7 +10,6 @@ chai.use(chaiAsPromised);
 chai.should();
 
 describe('inmemory ConfigStore', function () {
-  var configStore = null;
   var config = {
     default: {foo: 'default'},
     clients: {
@@ -47,28 +46,27 @@ describe('inmemory ConfigStore', function () {
     }
   };
 
-  var clientStore = null;
-  var tokenStore = null;
+  var stores = {};
 
   before(function () {
-    clientStore = new ClientStore();
-    tokenStore = new TokenStore({tokens: tokens});
-    configStore = new ConfigStore(tokenStore, config);
+    stores.clientStore = new ClientStore(stores);
+    stores.tokenStore = new TokenStore(stores, {tokens: tokens});
+    stores.configStore = new ConfigStore(stores, config);
   });
 
   it('should retrieve the default configuration', function () {
-    return configStore.get('tMatchNone').should.eventually.deep.equal(config.default);
+    return stores.configStore.get('tMatchNone').should.eventually.deep.equal(config.default);
   });
 
   it('should retrieve the client-specific configuration', function () {
-    return configStore.get('tMatchClient').should.eventually.deep.equal(config.clients.appDevLTD);
+    return stores.configStore.get('tMatchClient').should.eventually.deep.equal(config.clients.appDevLTD);
   });
 
   it('should retrieve the library-specific configuration', function () {
-    return configStore.get('tMatchLibrary').should.eventually.deep.equal(config.libraries['000000']);
+    return stores.configStore.get('tMatchLibrary').should.eventually.deep.equal(config.libraries['000000']);
   });
 
   it('should retrieve the user-specific configuration', function () {
-    return configStore.get('tMatchUser').should.eventually.deep.equal(config.users['donald@000000']);
+    return stores.configStore.get('tMatchUser').should.eventually.deep.equal(config.users['donald@000000']);
   });
 });

@@ -7,8 +7,8 @@ export default class ConfigurationStore {
     return [];
   }
 
-  constructor(tokenStore, config) {
-    this.tokenStore = tokenStore;
+  constructor(stores, config) {
+    this.stores = stores;
     this.config = config || {};
   }
 
@@ -18,7 +18,7 @@ export default class ConfigurationStore {
 
   get(token) { // eslint-disable-line no-unused-vars
     var config = this.config;
-    return this.tokenStore.getAccessToken(token)
+    return this.stores.tokenStore.getAccessToken(token)
       .then((tokenInfo) => {
         var user = userDecode(tokenInfo.userId);
         var libraryId = user.libraryId;

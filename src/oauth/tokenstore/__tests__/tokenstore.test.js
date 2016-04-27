@@ -30,7 +30,7 @@ Object.keys(backends).forEach((backendName) => {
     var user = {id: chance.string()};
 
     it('should initialize', function () {
-      tokenStore = new backends[backendName]();
+      tokenStore = new backends[backendName]({});
       return tokenStore.ping().should.be.fulfilled;
     });
 

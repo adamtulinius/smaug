@@ -7,7 +7,7 @@ export default class UserStore {
     return [];
   }
 
-  constructor(config = {}) {
+  constructor(stores, config = {}) {
     this.users = config.users || {};
   }
 

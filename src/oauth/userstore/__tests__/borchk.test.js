@@ -12,7 +12,7 @@ describe('borchk', function () {
   var userStore = null;
 
   before(function () {
-    userStore = new UserStore({
+    userStore = new UserStore({}, {
       wsdl: 'https://borchk.addi.dk/2.4/borchk.wsdl',
       serviceRequester: 'bibliotek.dk'
     });

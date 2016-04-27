@@ -24,6 +24,7 @@ describe('web app', function () {
   var appConfig = null;
   var configStoreConfig = null;
   var bearerToken = null;
+  var stores = {};
 
   before(function () {
     chance = new Chance();
@@ -39,18 +40,12 @@ describe('web app', function () {
       }
     };
 
-    var clientStore = new ClientStore();
-    var tokenStore = new TokenStore();
-    var userStore = new UserStore();
-    var configStore = new ConfigStore(tokenStore, configStoreConfig);
-    var stores = {
-      clientStore: clientStore,
-      configStore: configStore,
-      tokenStore: tokenStore,
-      userStore: userStore
-    };
-    clientStore.store(clientId, clientSecret);
-    userStore.storeUser(username, password);
+    stores.clientStore = new ClientStore(stores);
+    stores.tokenStore = new TokenStore(stores);
+    stores.userStore = new UserStore(stores);
+    stores.configStore = new ConfigStore(stores, configStoreConfig);
+    stores.clientStore.store(clientId, clientSecret);
+    stores.userStore.storeUser(username, password);
     app = createApp(appConfig);
     app.set('stores', stores);
   });

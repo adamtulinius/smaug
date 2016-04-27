@@ -12,7 +12,7 @@ class TokenStore {
     return [];
   }
 
-  constructor() {
+  constructor(stores) { // eslint-disable-line no-unused-vars
     // initialize redis client
     this.redisClient = redis.createClient();
   }

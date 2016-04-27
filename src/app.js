@@ -10,35 +10,33 @@ const config = JSON.parse(
   fs.readFileSync(
     args.f || './config.json', 'utf8'));
 
-const ClientStore = require('./oauth/tokenstore/' + (config.clientstore.backend || 'inmemory'));
-const TokenStore = require('./oauth/tokenstore/' + (config.tokenstore.backend || 'inmemory'));
-const UserStore = require('./oauth/userstore/' + (config.userstore.backend || 'inmemory'));
-const ConfigurationStore = require('./oauth/configstore/' + (config.configstore.backend || 'static'));
-
-[
-  {store: ClientStore, config: config.clientstore},
-  {store: TokenStore, config: config.tokenstore},
-  {store: UserStore, config: config.userstore},
-  {store: ConfigurationStore, config: config.configstore}
-].forEach((configuredStore) => {
-  configuredStore.store.requiredOptions().forEach((requiredOption) => {
-    if (typeof configuredStore.config.config[requiredOption] === 'undefined') {
-      throw new Error('Missing option for ' + configuredStore.config.backend + ': ' + requiredOption);
-    }
-  });
-});
-
 // Setup
 const port = process.env.PORT || 3001; // eslint-disable-line no-process-env
 const oAuthPort = process.env.PORT_OAUTH || port; // eslint-disable-line no-process-env
 const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-line no-process-env
 const splitMode = oAuthPort !== configurationPort;
 
-var stores = {};
-stores.clientStore = new ClientStore(config.clientstore.config);
-stores.tokenStore = new TokenStore(config.tokenstore.config);
-stores.userStore = new UserStore(config.userstore.config);
-stores.configStore = new ConfigurationStore(stores.tokenStore, config.configstore.config);
+const storesToLoad = [
+  'clientStore',
+  'configStore',
+  'userStore',
+  'tokenStore'
+];
+
+var loadedStores = {};
+
+storesToLoad.forEach((storeName) => {
+  var storeNameInConfig = storeName.toLowerCase();
+  var storeConfig = config[storeNameInConfig];
+  var store = require('./oauth/' + storeNameInConfig + '/' + (storeConfig.backend || 'inmemory'));
+  store.requiredOptions().forEach((requiredOption) => {
+    if (typeof storeConfig[requiredOption] === 'undefined') {
+      throw new Error('Missing option for ' + storeConfig.backend + ': ' + requiredOption);
+    }
+  });
+  loadedStores[storeName] = new store(loadedStores, storeConfig.config);
+});
+
 
 var apps = [];
 
@@ -53,7 +51,7 @@ else {
 }
 
 apps.forEach((app) => {
-  app.express.set('stores', stores);
+  app.express.set('stores', loadedStores);
   app.express.listen(app.port, () => {
     var description = '';
     if (typeof app.name !== 'undefined') {

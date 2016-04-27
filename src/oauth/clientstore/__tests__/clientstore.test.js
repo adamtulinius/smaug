@@ -10,7 +10,7 @@ chai.should();
 
 var backends = {
   inmemory: () => {
-    return new InmemoryClientStore();
+    return new InmemoryClientStore({});
   }
 };
 
