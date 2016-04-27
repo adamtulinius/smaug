@@ -3,6 +3,8 @@
 import express from 'express';
 import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
+import basicAuth from 'basic-auth';
+import _ from 'lodash';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
 // import throttle from './throttle/throttle.middleware.js';
@@ -48,7 +50,7 @@ export function createConfigurationApp(config) {
   return app;
 }
 
-export function createOAuthApp(config) {
+export function createOAuthApp(config = {}) {
   var app = createBasicApp();
   app.set('config', config);
 
@@ -83,7 +85,7 @@ export function createOAuthApp(config) {
   return app;
 }
 
-export function createApp(config) {
+export function createApp(config = {}) {
   var app = express();
 
   app.use(createConfigurationApp(config));
@@ -92,9 +94,19 @@ export function createApp(config) {
   return app;
 }
 
-export function createAdminApp(config) {
+export function createAdminApp(config = {}) {
   var app = createBasicApp();
   app.set('config', config);
+  app.use((req, res, next) => {
+    var credentials = basicAuth(req) || {};
+    if (_.every([typeof credentials.name === 'string', typeof credentials.pass === 'string'])) {
+      var users = (app.get('config').admin || {}).users || {};
+      if (users[credentials.name] === credentials.pass) {
+        return next();
+      }
+    }
+    return res.sendStatus(403);
+  });
 
   return app;
 }
