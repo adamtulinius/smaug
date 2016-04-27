@@ -94,6 +94,21 @@ export function createApp(config = {}) {
   return app;
 }
 
+export function filterClient(client) {
+  var filteredClient = Object.assign({}, client);
+  delete filteredClient.secret;
+  return filteredClient; // eslint-disable-line no-undefined
+}
+
+export function filterClients(clients) {
+  return clients.map(filterClient);
+}
+
+export function clientWithId(client, id) {
+  return Object.assign({}, client, {id: id});
+}
+
+
 export function createAdminApp(config = {}) {
   var app = createBasicApp();
   app.set('config', config);
@@ -108,6 +123,79 @@ export function createAdminApp(config = {}) {
     return res.sendStatus(403);
   });
 
+  var clientEndpoint = express.Router();
+
+  clientEndpoint.use((req, res, next) => {
+    next();
+  });
+
+  clientEndpoint.route('/')
+    .get((req, res) => {
+      // list clients
+      app.get('stores').clientStore.getAll()
+        .then(filterClients)
+        .then((clients) => {
+          res.json(clients);
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+    })
+    .post((req, res) => {
+      // create client
+      var client = {
+        name: req.body.name
+      };
+
+      app.get('stores').clientStore.create(client)
+        .then(filterClient)
+        .then((persistedClient) => {
+          res.json(persistedClient);
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+    });
+
+  clientEndpoint.route('/:clientId')
+    .get((req, res) => {
+      // get client
+      app.get('stores').clientStore.get(req.params.clientId)
+        .then(filterClient)
+        .then((client) => {
+          res.json(client);
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+    })
+    .put((req, res) => {
+      // update client
+      var clientId = req.params.clientId;
+      var client = {
+        name: req.body.name
+      };
+      app.get('stores').clientStore.update(clientId, client)
+        .then((persistedClient) => {
+          res.json(persistedClient);
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+    })
+    .delete((req, res) => {
+      // delete client
+      app.get('stores').clientStore.delete(req.params.clientId)
+        .then(() => {
+          res.json({});
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+
+    });
+
+  app.use('/clients', clientEndpoint);
   return app;
 }
 

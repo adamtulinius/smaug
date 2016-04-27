@@ -18,7 +18,7 @@ describe('web app', function () {
   var app = null;
   var chance = null;
   var clientId = null;
-  var clientSecret = null;
+  var client = null;
   var username = null;
   var password = null;
   var appConfig = null;
@@ -29,7 +29,7 @@ describe('web app', function () {
   before(function () {
     chance = new Chance();
     clientId = chance.word({length: 10});
-    clientSecret = chance.string();
+    client = {name: chance.word({length: 10}), secret: chance.string()};
     username = userEncode('123456', chance.word({length: 10}));
     password = chance.string();
     appConfig = {defaultLibraryId: '000000'};
@@ -44,7 +44,7 @@ describe('web app', function () {
     stores.tokenStore = new TokenStore(stores);
     stores.userStore = new UserStore(stores);
     stores.configStore = new ConfigStore(stores, configStoreConfig);
-    stores.clientStore.store(clientId, clientSecret);
+    stores.clientStore.update(clientId, client);
     stores.userStore.storeUser(username, password);
     app = createApp(appConfig);
     app.set('stores', stores);
@@ -63,7 +63,7 @@ describe('web app', function () {
       .send({
         grant_type: 'client_credentials',
         client_id: clientId,
-        client_secret: clientSecret
+        client_secret: client.secret
       })
       .expect(500, done);
   });
@@ -71,7 +71,7 @@ describe('web app', function () {
   it('should return a token when logging in with password', function (done) {
     request(app)
       .post('/oauth/token')
-      .auth(clientId, clientSecret)
+      .auth(clientId, client.secret)
       .type('form')
       .send({
         grant_type: 'password',
@@ -91,7 +91,7 @@ describe('web app', function () {
   it('should return a token when logging in as anonymous', function (done) {
     request(app)
       .post('/oauth/token')
-      .auth(clientId, clientSecret)
+      .auth(clientId, client.secret)
       .type('form')
       .send({
         grant_type: 'password',
