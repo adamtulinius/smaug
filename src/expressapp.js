@@ -23,15 +23,16 @@ function createBasicApp() {
   return app;
 }
 
-export function createConfigurationApp(config, clientStore, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+export function createConfigurationApp(config) {
   var app = createBasicApp();
+  app.set('config', config);
 
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
 
-    tokenStore.getAccessToken(bearerToken)
+    app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then(() => {
-        configStore.get(bearerToken)
+        app.get('stores').configStore.get(bearerToken)
           .then((userConfig) => {
             res.send(JSON.stringify(userConfig, null, req.query.pretty ? 2 : null));
           })
@@ -47,11 +48,12 @@ export function createConfigurationApp(config, clientStore, tokenStore, userStor
   return app;
 }
 
-export function createOAuthApp(config, clientStore, tokenStore, userStore, configStore) { // eslint-disable-line no-unused-vars
+export function createOAuthApp(config) {
   var app = createBasicApp();
+  app.set('config', config);
 
   app.oauth = OAuth2Server({
-    model: new Model(clientStore, tokenStore, userStore),
+    model: new Model(app),
     grants: ['password'],
     debug: true,
     accessTokenLifetime: 60*60*24*30 // 30 days
@@ -81,11 +83,11 @@ export function createOAuthApp(config, clientStore, tokenStore, userStore, confi
   return app;
 }
 
-export function createApp(config, clientStore, tokenStore, userStore, configStore) {
+export function createApp(config) {
   var app = express();
 
-  app.use(createConfigurationApp(config, clientStore, tokenStore, userStore, configStore));
-  app.use(createOAuthApp(config, clientStore, tokenStore, userStore, configStore));
+  app.use(createConfigurationApp(config));
+  app.use(createOAuthApp(config));
 
   return app;
 }

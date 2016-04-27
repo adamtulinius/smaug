@@ -52,7 +52,7 @@ describe('inmemory ConfigStore', function () {
 
   before(function () {
     clientStore = new ClientStore();
-    tokenStore = new TokenStore(clientStore, {tokens: tokens});
+    tokenStore = new TokenStore({tokens: tokens});
     configStore = new ConfigStore(tokenStore, config);
   });
 

@@ -34,49 +34,31 @@ const oAuthPort = process.env.PORT_OAUTH || port; // eslint-disable-line no-proc
 const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-line no-process-env
 const splitMode = oAuthPort !== configurationPort;
 
-var clientStore = new ClientStore(config.clientstore.config);
-var tokenStore = new TokenStore(config.tokenstore.config);
-var userStore = new UserStore(config.userstore.config);
-var configurationStore = new ConfigurationStore(tokenStore, config.configstore.config);
+var stores = {};
+stores.clientStore = new ClientStore(config.clientstore.config);
+stores.tokenStore = new TokenStore(config.tokenstore.config);
+stores.userStore = new UserStore(config.userstore.config);
+stores.configStore = new ConfigurationStore(stores.tokenStore, config.configstore.config);
 
+var apps = [];
 
 if (splitMode) {
-  var oAuthApp = createOAuthApp(
-    config,
-    clientStore,
-    tokenStore,
-    userStore,
-    configurationStore
-  );
-
-  var configurationApp = createConfigurationApp(
-    config,
-    clientStore,
-    tokenStore,
-    userStore,
-    configurationStore
-  );
-
-  oAuthApp.listen(oAuthPort, () => {
-    log.info('Started Smaug (config) on port ' + oAuthPort);
-  });
-
-  configurationApp.listen(configurationPort, () => {
-    log.info('Started Smaug (auth) on port ' + configurationPort);
-  });
+  apps.push({express: createOAuthApp(config), port: oAuthPort, name: 'auth'});
+  apps.push({express: createConfigurationApp(config), port: configurationPort, name: 'config'});
 }
 else {
-  var app = createApp(
-    config,
-    clientStore,
-    tokenStore,
-    userStore,
-    configurationStore
-  );
-
   // Since $oAuthPort and $configurationPort can be set to the same port, but might be different from $port,
   // it might be wrong to listen on $port when not in split mode.
-  app.listen(oAuthPort, () => {
-    log.info('Started Smaug (auth) on port ' + oAuthPort);
-  });
+  apps.push({express: createApp(config), port: oAuthPort});
 }
+
+apps.forEach((app) => {
+  app.express.set('stores', stores);
+  app.express.listen(app.port, () => {
+    var description = '';
+    if (typeof app.name !== 'undefined') {
+      description = ' (' + app.name + ')';
+    }
+    log.info('Started Smaug' + description + ' on port ' + app.port);
+  });
+});

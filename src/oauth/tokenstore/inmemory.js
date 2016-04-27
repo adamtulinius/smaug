@@ -7,8 +7,7 @@ class TokenStore {
     return [];
   }
 
-  constructor(clientStore, config = {}) {
-    this.clientStore = clientStore;
+  constructor(config = {}) {
     this.clients = config.clients || {};
     this.tokens = config.tokens || {};
   }

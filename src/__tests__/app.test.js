@@ -4,7 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import request from 'supertest';
-import createapp from '../expressapp';
+import {createApp} from '../expressapp';
 import TokenStore from '../oauth/tokenstore/inmemory';
 import UserStore from '../oauth/userstore/inmemory';
 import ConfigStore from '../oauth/configstore/inmemory';
@@ -43,9 +43,16 @@ describe('web app', function () {
     var tokenStore = new TokenStore();
     var userStore = new UserStore();
     var configStore = new ConfigStore(tokenStore, configStoreConfig);
+    var stores = {
+      clientStore: clientStore,
+      configStore: configStore,
+      tokenStore: tokenStore,
+      userStore: userStore
+    };
     clientStore.store(clientId, clientSecret);
     userStore.storeUser(username, password);
-    app = createapp(appConfig, clientStore, tokenStore, userStore, configStore);
+    app = createApp(appConfig);
+    app.set('stores', stores);
   });
 
   it('should respond with 200 on /', function (done) {

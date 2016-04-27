@@ -10,14 +10,12 @@ import {log} from '../utils';
 // const throttler = new Throttler();
 
 export class Model {
-  constructor(clientStore, tokenStore, userStore) {
-    this.clientStore = clientStore;
-    this.tokenStore = tokenStore;
-    this.userStore = userStore;
+  constructor(app) {
+    this.app = app;
   }
 
   getAccessToken(bearerToken, callback) {
-    this.tokenStore.getAccessToken(bearerToken)
+    this.app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((token) => {
         log.info('model.getAccessToken success', {token: token});
         callback(null, token);
@@ -29,7 +27,7 @@ export class Model {
   }
 
   saveAccessToken (accessToken, clientId, expires, user, callback) {
-    this.tokenStore.storeAccessToken(accessToken, clientId, expires, user)
+    this.app.get('stores').tokenStore.storeAccessToken(accessToken, clientId, expires, user)
       .then(callback())
       .catch((err) => {
         throw err;
@@ -37,7 +35,7 @@ export class Model {
   }
 
   getClient (clientId, clientSecret, callback) {
-    this.clientStore.getAndValidate(clientId, clientSecret)
+    this.app.get('stores').clientStore.getAndValidate(clientId, clientSecret)
       .then(() => {
         // if found then return clientid else return false
         log.info('model.getClient success', {clientId: clientId});
@@ -60,7 +58,7 @@ export class Model {
   }
 
   getUser (username, password, callback) {
-    this.userStore.getUser(username, password)
+    this.app.get('stores').userStore.getUser(username, password)
       .then((user) => {
         if (user) {
           callback(null, user);
