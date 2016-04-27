@@ -28,6 +28,7 @@
   "dependencies": {
     "babel": "5.8.29",
     "babel-core": "5.8.29",
+    "basic-auth": "^1.0.3",
     "body-parser": "^1.14.1",
     "dbc-node-borchk": "^2.0.1",
     "express": "4.13.4",

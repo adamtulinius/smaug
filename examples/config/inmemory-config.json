@@ -1,4 +1,9 @@
 {
+  "admin": {
+    "users": {
+      "admin": "password"
+    }
+  },
   "defaultLibraryId": "000000",
   "userstore": {
     "backend": "inmemory",
