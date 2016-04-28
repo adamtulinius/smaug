@@ -1,16 +1,22 @@
 'use strict';
 
+import uuid from 'uuid';
+
 export default class ClientStore {
   static requiredOptions() {
     return [];
   }
 
   constructor(stores, config) {
-    this.clients = config || {};
+    this.clients = (config || {}).clients || {};
   }
 
   ping() {
     return Promise.resolve();
+  }
+
+  create(client) {
+    return this.update(uuid.v4(), client);
   }
 
   get(clientId) { // eslint-disable-line no-unused-vars
@@ -19,12 +25,7 @@ export default class ClientStore {
     if (typeof client === 'undefined') {
       return Promise.reject();
     }
-
-    if (typeof client !== 'object') {
-      client = {secret: client};
-    }
-
-    return Promise.resolve(client);
+    return Promise.resolve(Object.assign({}, client, {id: clientId}));
   }
 
   getAndValidate(clientId, clientSecret) {
@@ -37,14 +38,20 @@ export default class ClientStore {
       });
   }
 
-  store(clientId, client) {
-    if (typeof client === 'object') {
-      this.clients[clientId] = client;
+  getAll() {
+    var clients = Object.keys(this.clients).map((clientId) => {
+      return Object.assign({}, this.clients[clientId], {id: clientId});
+    });
+
+    return Promise.resolve(clients);
+  }
+
+  update(clientId, client) {
+    if (typeof clientId === 'undefined') {
+      return Promise.reject(new Error('clientId can\'t be undefined'));
     }
-    else {
-      this.clients[clientId] = {secret: client};
-    }
-    return Promise.resolve();
+    this.clients[clientId] = client;
+    return this.get(clientId);
   }
 
   delete(clientId) {

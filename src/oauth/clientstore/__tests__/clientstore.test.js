@@ -19,8 +19,8 @@ Object.keys(backends).forEach((backendName) => {
   describe(backendName + ' ClientStore', () => {
     var chance = new Chance();
     var clientStore = null;
-    var clientId = chance.string();
-    var client = {secret: chance.string()};
+    var clientId = null;
+    var client = {name: 'a-client', secret: chance.string()};
 
     it('should initialize', function () {
       clientStore = new backends[backendName]();
@@ -31,12 +31,16 @@ Object.keys(backends).forEach((backendName) => {
       return clientStore.get('404').should.be.rejected;
     });
 
-    it('should store a client', function () {
-      return clientStore.store(clientId, client);
+    it('should create a new client', function () {
+      return clientStore.create(client)
+        .then((returnedClient) => {
+          clientId = returnedClient.id;
+        })
+        .should.be.fulfilled;
     });
 
     it('should retrieve and validate a client', function () {
-      return clientStore.getAndValidate(clientId, client.secret).should.eventually.deep.equal(client);
+      return clientStore.getAndValidate(clientId, client.secret).should.eventually.deep.equal(Object.assign({}, client, {id: clientId}));
     });
 
     it('should fail to retrieve a client with the wrong secret', function () {
