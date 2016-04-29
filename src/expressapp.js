@@ -32,15 +32,9 @@ export function createConfigurationApp(config) {
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
 
-    app.get('stores').tokenStore.getAccessToken(bearerToken)
-      .then(() => {
-        app.get('stores').configStore.get(bearerToken)
-          .then((userConfig) => {
-            res.send(JSON.stringify(userConfig, null, req.query.pretty ? 2 : null));
-          })
-          .catch((err) => {
-            return next(err);
-          });
+    app.get('stores').configStore.get(bearerToken)
+      .then((userConfig) => {
+        res.send(JSON.stringify(userConfig, null, req.query.pretty ? 2 : null));
       })
       .catch((err) => {
         return next(err);
