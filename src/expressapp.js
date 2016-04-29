@@ -14,6 +14,7 @@ function createBasicApp() {
   var app = express();
 
   app.disable('x-powered-by');
+  app.set('json spaces', 2);
 
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
@@ -34,7 +35,7 @@ export function createConfigurationApp(config) {
 
     app.get('stores').configStore.get(bearerToken)
       .then((userConfig) => {
-        res.send(JSON.stringify(userConfig, null, req.query.pretty ? 2 : null));
+        res.json(userConfig);
       })
       .catch((err) => {
         return next(err);
