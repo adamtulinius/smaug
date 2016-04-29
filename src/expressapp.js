@@ -39,7 +39,7 @@ export function createConfigurationApp(config) {
         var client = {id: tokenInfo.clientId};
         return app.get('stores').configStore.get(user, client)
           .then((userConfig) => {
-            res.json(userConfig);
+            res.json(Object.assign({}, userConfig, {user: user}));
           })
           .catch((err) => {
             return next(err);

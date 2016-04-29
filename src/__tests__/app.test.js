@@ -113,7 +113,7 @@ describe('web app', function () {
       .get('/configuration?token=' + bearerToken)
       .expect(function(res) {
         var returnedConfig = JSON.parse(res.text);
-        returnedConfig.should.deep.equal(configStoreConfig.default);
+        returnedConfig.should.deep.equal(Object.assign({}, configStoreConfig.default, {user: {libraryId: appConfig.defaultLibraryId}}));
       })
       .expect(200, done);
   });
