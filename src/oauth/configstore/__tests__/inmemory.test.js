@@ -2,9 +2,8 @@
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import ClientStore from '../../clientstore/inmemory';
 import ConfigStore from '../inmemory';
-import TokenStore from '../../tokenstore/inmemory';
+import {userDecode} from '../../../utils';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -23,50 +22,25 @@ describe('inmemory ConfigStore', function () {
     }
   };
 
-  var tokens = {
-    tMatchNone: {
-      userId: 'anUser@aLibrary',
-      clientId: 'aClient',
-      expires: '2020-01-01T00:00:00Z'
-    },
-    tMatchClient: {
-      userId: 'anUser@aLibrary',
-      clientId: 'appDevLTD',
-      expires: '2020-01-01T00:00:00Z'
-    },
-    tMatchLibrary: {
-      userId: 'anUser@000000',
-      clientId: 'appDevLTD',
-      expires: '2020-01-01T00:00:00Z'
-    },
-    tMatchUser: {
-      userId: 'donald@000000',
-      clientId: 'appDevLTD',
-      expires: '2020-01-01T00:00:00Z'
-    }
-  };
-
   var stores = {};
 
   before(function () {
-    stores.clientStore = new ClientStore(stores);
-    stores.tokenStore = new TokenStore(stores, {tokens: tokens});
     stores.configStore = new ConfigStore(stores, config);
   });
 
   it('should retrieve the default configuration', function () {
-    return stores.configStore.get('tMatchNone').should.eventually.deep.equal(config.default);
+    return stores.configStore.get(userDecode('anUser@aLibrary'), {id: 'aClient'}).should.eventually.deep.equal(config.default);
   });
 
   it('should retrieve the client-specific configuration', function () {
-    return stores.configStore.get('tMatchClient').should.eventually.deep.equal(config.clients.appDevLTD);
+    return stores.configStore.get(userDecode('anUser@aLibrary'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.clients.appDevLTD);
   });
 
   it('should retrieve the library-specific configuration', function () {
-    return stores.configStore.get('tMatchLibrary').should.eventually.deep.equal(config.libraries['000000']);
+    return stores.configStore.get(userDecode('anUser@000000'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.libraries['000000']);
   });
 
   it('should retrieve the user-specific configuration', function () {
-    return stores.configStore.get('tMatchUser').should.eventually.deep.equal(config.users['donald@000000']);
+    return stores.configStore.get(userDecode('donald@000000'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.users['donald@000000']);
   });
 });

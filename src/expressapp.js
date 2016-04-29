@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
 // import throttle from './throttle/throttle.middleware.js';
-import {userEncode} from './utils';
+import {userEncode, userDecode} from './utils';
 
 function createBasicApp() {
   var app = express();
@@ -33,9 +33,17 @@ export function createConfigurationApp(config) {
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
 
-    app.get('stores').configStore.get(bearerToken)
-      .then((userConfig) => {
-        res.json(userConfig);
+    app.get('stores').tokenStore.getAccessToken(bearerToken)
+      .then((tokenInfo) => {
+        var user = userDecode(tokenInfo.userId);
+        var client = {id: tokenInfo.clientId};
+        return app.get('stores').configStore.get(user, client)
+          .then((userConfig) => {
+            res.json(userConfig);
+          })
+          .catch((err) => {
+            return next(err);
+          });
       })
       .catch((err) => {
         return next(err);
