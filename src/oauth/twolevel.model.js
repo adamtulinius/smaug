@@ -58,10 +58,26 @@ export class Model {
   }
 
   getUser (username, password, callback) {
+    var storePasswordsInRedisClient = this.app.get('storePasswordsInRedisClient');
+
     this.app.get('stores').userStore.getUser(username, password)
       .then((user) => {
         if (user) {
-          callback(null, user);
+          if (typeof storePasswordsInRedisClient !== 'undefined') {
+            storePasswordsInRedisClient.set(username, password, (err, res) => { // eslint-disable-line no-unused-vars
+              if (err) {
+                callback(new Error('I\'m a teapot'), null);
+              }
+              else {
+                // success
+                callback(null, user);
+              }
+            });
+          }
+          else {
+            // success
+            callback(null, user);
+          }
         }
         else {
           // if getUser fails
