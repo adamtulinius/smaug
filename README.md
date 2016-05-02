@@ -92,3 +92,10 @@ curl --user admin:password -X PUT -H "Content-Type: application/json" http://loc
 curl --user admin:password -X DELETE http://localhost:$PORT_ADMIN/clients/b0819839-6bbf-4218-9895-2ddde8e0d32a
 {}
 ```
+
+#### config
+
+```
+# list config
+curl --user admin:password http://localhost:$PORT_ADMIN/config
+```

@@ -146,6 +146,7 @@ export function createAdminApp(config = {}) {
   });
 
   var clientEndpoint = express.Router();
+  var configEndpoint = express.Router();
 
   clientEndpoint.use((req, res, next) => {
     next();
@@ -217,7 +218,13 @@ export function createAdminApp(config = {}) {
 
     });
 
+  configEndpoint.route('/')
+    .get((req, res) => {
+      res.json(app.get('config'));
+    });
+
   app.use('/clients', clientEndpoint);
+  app.use('/config', configEndpoint);
   return app;
 }
 
