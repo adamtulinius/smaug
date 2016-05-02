@@ -4,14 +4,21 @@ import express from 'express';
 import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
 import basicAuth from 'basic-auth';
+import redis from 'redis';
 import _ from 'lodash';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
 // import throttle from './throttle/throttle.middleware.js';
 import {userEncode, userDecode} from './utils';
 
-function createBasicApp() {
+function createBasicApp(config) {
   var app = express();
+  app.set('config', config);
+
+  var storePasswordsInRedisOptions = (app.get('config').whoCaresAboutSecurityAnyway || {}).storePasswordsInRedis;
+  if (storePasswordsInRedisOptions) {
+    app.set('storePasswordsInRedisClient', redis.createClient(storePasswordsInRedisOptions));
+  }
 
   app.disable('x-powered-by');
   app.set('json spaces', 2);
@@ -27,19 +34,32 @@ function createBasicApp() {
 }
 
 export function createConfigurationApp(config) {
-  var app = createBasicApp();
-  app.set('config', config);
+  var app = createBasicApp(config);
 
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
 
     app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((tokenInfo) => {
-        var user = userDecode(tokenInfo.userId);
+        var user = Object.assign(userDecode(tokenInfo.userId), {clientId: tokenInfo.clientId});
         var client = {id: tokenInfo.clientId};
         return app.get('stores').configStore.get(user, client)
           .then((userConfig) => {
-            res.json(Object.assign({}, userConfig, {user: user}));
+            var storePasswordsInRedisClient = app.get('storePasswordsInRedisClient');
+            if (typeof storePasswordsInRedisClient !== 'undefined') {
+              storePasswordsInRedisClient.get(tokenInfo.userId, (redisErr, redisRes) => { // eslint-disable-line no-unused-vars
+                if (redisErr) {
+                  return next(new Error('I\'m still a teapot'));
+                }
+
+                var insecureUser = Object.assign({}, user, {secret: redisRes});
+                res.json(Object.assign({}, userConfig, {user: insecureUser}));
+              });
+            }
+            else {
+              // success
+              res.json(Object.assign({}, userConfig, {user: user}));
+            }
           })
           .catch((err) => {
             return next(err);
@@ -54,8 +74,7 @@ export function createConfigurationApp(config) {
 }
 
 export function createOAuthApp(config = {}) {
-  var app = createBasicApp();
-  app.set('config', config);
+  var app = createBasicApp(config);
 
   app.oauth = OAuth2Server({
     model: new Model(app),
@@ -113,7 +132,7 @@ export function clientWithId(client, id) {
 
 
 export function createAdminApp(config = {}) {
-  var app = createBasicApp();
+  var app = createBasicApp(config);
   app.set('config', config);
   app.use((req, res, next) => {
     var credentials = basicAuth(req) || {};

@@ -19,6 +19,7 @@ describe('web app', function () {
   var chance = null;
   var clientId = null;
   var client = null;
+  var user = null;
   var username = null;
   var password = null;
   var appConfig = null;
@@ -30,9 +31,17 @@ describe('web app', function () {
     chance = new Chance();
     clientId = chance.word({length: 10});
     client = {name: chance.word({length: 10}), secret: chance.string()};
-    username = userEncode('123456', chance.word({length: 10}));
+    user = {id: chance.word({length: 10}), libraryId: '123456'};
+    username = userEncode(user.libraryId, user.id);
     password = chance.string();
-    appConfig = {defaultLibraryId: '000000'};
+    appConfig = {
+      defaultLibraryId: '000000',
+      whoCaresAboutSecurityAnyway: {
+        storePasswordsInRedis: {
+          prefix: 'users'
+        }
+      }
+    };
     configStoreConfig = {
       default: {foo: 'default'},
       libraries: {
@@ -68,26 +77,6 @@ describe('web app', function () {
       .expect(500, done);
   });
 
-  it('should return a token when logging in with password', function (done) {
-    request(app)
-      .post('/oauth/token')
-      .auth(clientId, client.secret)
-      .type('form')
-      .send({
-        grant_type: 'password',
-        username: username,
-        password: password
-      })
-      .expect(function(res) {
-        var token = JSON.parse(res.text);
-        token.should.have.property('access_token').with.length(40);
-        token.should.have.property('expires_in');
-        token.token_type.should.equal('bearer');
-        bearerToken = token.access_token;
-      })
-      .expect(200, done);
-  });
-
   it('should return a token when logging in as anonymous', function (done) {
     request(app)
       .post('/oauth/token')
@@ -108,12 +97,38 @@ describe('web app', function () {
       .expect(200, done);
   });
 
+  it('should return a token when logging in with password', function (done) {
+    request(app)
+      .post('/oauth/token')
+      .auth(clientId, client.secret)
+      .type('form')
+      .send({
+        grant_type: 'password',
+        username: username,
+        password: password
+      })
+      .expect(function(res) {
+        var token = JSON.parse(res.text);
+        token.should.have.property('access_token').with.length(40);
+        token.should.have.property('expires_in');
+        token.token_type.should.equal('bearer');
+        bearerToken = token.access_token;
+      })
+      .expect(200, done);
+  });
+
   it('should return configuration when queried for it with a token', function(done) {
     request(app)
       .get('/configuration?token=' + bearerToken)
       .expect(function(res) {
         var returnedConfig = JSON.parse(res.text);
-        returnedConfig.should.deep.equal(Object.assign({}, configStoreConfig.default, {user: {libraryId: appConfig.defaultLibraryId}}));
+        returnedConfig.should.deep.equal(
+          Object.assign(
+          {},
+            configStoreConfig.libraries[user.libraryId],
+            {user: Object.assign({}, user, {clientId: clientId, secret: password})}
+          )
+        );
       })
       .expect(200, done);
   });
