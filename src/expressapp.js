@@ -83,7 +83,6 @@ export function createOAuthApp(config = {}) {
     accessTokenLifetime: 60*60*24*30 // 30 days
   });
 
-  app.use(app.oauth.errorHandler());
   // app.use(throttle());
 
   // Add implicit libraryId to anonymous user without libraryId, and change the password from accordingly.
@@ -103,6 +102,7 @@ export function createOAuthApp(config = {}) {
     next();
   });
   app.post('/oauth/token', app.oauth.grant());
+  app.use(app.oauth.errorHandler());
 
   return app;
 }

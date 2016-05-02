@@ -74,7 +74,7 @@ describe('web app', function () {
         client_id: clientId,
         client_secret: client.secret
       })
-      .expect(500, done);
+      .expect(400, done);
   });
 
   it('should return a token when logging in as anonymous', function (done) {
