@@ -33,6 +33,20 @@ Get: `curl http://$smaugLocation/configuration?token=...`
 
 ### Admin
 
+#### tokens
+
+```
+# request access token
+# curl --user client_id:client_secret -X POST http://localhost:$PORT_OAUTH/oauth/token -d 'grant_type=password&username=username@010101&password=password'
+# eg:
+curl --user "c0ba685e-2130-4e24-b4e9-4a903fe71ada":duck -X POST http://localhost:3001/oauth/token -d 'grant_type=password&username=donald@010101&password=duck'
+{
+  "token_type": "bearer",
+  "access_token": "f523776caa3871cabf52668c34c09445267feace",
+  "expires_in": 2592000
+}
+```
+
 #### clients
 
 ```
