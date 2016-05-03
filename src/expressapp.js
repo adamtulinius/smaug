@@ -5,6 +5,7 @@ import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
 import basicAuth from 'basic-auth';
 import redis from 'redis';
+import moment from 'moment';
 import _ from 'lodash';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
@@ -31,18 +32,18 @@ function createBasicApp(config) {
   });
 
   app.get('/health', (req, res) => {
-    var result = {};
-    var ok = true;
+    var result = {ok: {}};
     var stores = app.get('stores');
 
     var storePromises = Object.keys(stores).map((storeId) => {
+      var tStart = moment();
       return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
         stores[storeId].ping()
           .then(() => {
-            resolve('ok');
+            resolve({responseTime: moment().diff(tStart), result: 'ok'});
           })
           .catch((err) => {
-            resolve(err);
+            resolve({responseTime: moment().diff(tStart), result: err});
           });
       });
     });
@@ -50,15 +51,17 @@ function createBasicApp(config) {
     Promise.all(storePromises).then((results) => {
       _.zip(Object.keys(stores), results).forEach((zipElem) => {
         let [storeId, status] = zipElem;
-        if (status instanceof Error) {
-          ok = false;
-          result[storeId] = {error: {name: status.name, msg: status.message, stacktrace: status.stack}};
+        if (status.result instanceof Error) {
+          if (typeof result.errors === 'undefined') {
+            result.errors = {};
+          }
+          result.errors[storeId] = {name: status.result.name, msg: status.result.message, stacktrace: status.result.stack, responseTime: status.responseTime};
         }
         else {
-          result[storeId] = status;
+          result.ok[storeId] = {responseTime: status.responseTime};
         }
       });
-      if (!ok) {
+      if (Object.keys(result.errors || {}).length > 0) {
         res.status(500);
       }
       res.json(result);
