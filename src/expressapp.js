@@ -144,6 +144,7 @@ export function createOAuthApp(config = {}) {
 
 export function createApp(config = {}) {
   var app = express();
+  app.disable('x-powered-by');
 
   app.use(createConfigurationApp(config));
   app.use(createOAuthApp(config));
