@@ -30,6 +30,41 @@ function createBasicApp(config) {
     res.send('Helpful text about Smaug.');
   });
 
+  app.get('/health', (req, res) => {
+    var result = {};
+    var ok = true;
+    var stores = app.get('stores');
+
+    var storePromises = Object.keys(stores).map((storeId) => {
+      return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
+        stores[storeId].ping()
+          .then(() => {
+            resolve('ok');
+          })
+          .catch((err) => {
+            resolve(err);
+          });
+      });
+    });
+
+    Promise.all(storePromises).then((results) => {
+      _.zip(Object.keys(stores), results).forEach((zipElem) => {
+        let [storeId, status] = zipElem;
+        if (status instanceof Error) {
+          ok = false;
+          result[storeId] = {error: {name: status.name, msg: status.message, stacktrace: status.stack}};
+        }
+        else {
+          result[storeId] = status;
+        }
+      });
+      if (!ok) {
+        res.status(500);
+      }
+      res.json(result);
+    });
+  });
+
   return app;
 }
 
