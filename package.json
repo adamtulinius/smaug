@@ -34,6 +34,7 @@
     "dbc-node-borchk": "^2.0.1",
     "express": "4.13.4",
     "lodash": "^3.10.1",
+    "lru-cache": "^4.0.1",
     "minimist": "^1.2.0",
     "moment": "^2.12.0",
     "oauth2-server": "^2.4.1",

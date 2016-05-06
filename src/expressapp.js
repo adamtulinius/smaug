@@ -4,6 +4,7 @@ import express from 'express';
 import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
 import basicAuth from 'basic-auth';
+import lruCache from 'lru-cache';
 import redis from 'redis';
 import moment from 'moment';
 import _ from 'lodash';
@@ -73,9 +74,15 @@ function createBasicApp(config) {
 
 export function createConfigurationApp(config) {
   var app = createBasicApp(config);
+  app.set('configCache', lruCache({max: 100, maxAge: 10*1000}));
 
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
+
+    var cachedConfig = app.get('configCache').get(bearerToken);
+    if (typeof cachedConfig !== 'undefined') {
+      return res.json(cachedConfig);
+    }
 
     app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((tokenInfo) => {
@@ -91,12 +98,16 @@ export function createConfigurationApp(config) {
                 }
 
                 var insecureUser = Object.assign({}, user, {secret: redisRes});
-                res.json(Object.assign({}, userConfig, {user: insecureUser}));
+                var generatedConfig = Object.assign({}, userConfig, {user: insecureUser});
+                app.get('configCache').set(bearerToken, generatedConfig);
+                res.json(generatedConfig);
               });
             }
             else {
               // success
-              res.json(Object.assign({}, userConfig, {user: user}));
+              var generatedConfig = Object.assign({}, userConfig, {user: user});
+              app.get('configCache').set(bearerToken, generatedConfig);
+              res.json(generatedConfig);
             }
           })
           .catch((err) => {
