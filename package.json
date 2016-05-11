@@ -33,6 +33,7 @@
     "body-parser": "^1.14.1",
     "dbc-node-borchk": "^2.0.1",
     "express": "4.13.4",
+    "http-errors": "^1.4.0",
     "lodash": "^3.10.1",
     "minimist": "^1.2.0",
     "moment": "^2.12.0",
