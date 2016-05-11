@@ -1,6 +1,7 @@
 'use strict';
 
 import express from 'express';
+import createError from 'http-errors';
 import OAuth2Server from 'oauth2-server';
 import bodyParser from 'body-parser';
 import basicAuth from 'basic-auth';
@@ -87,7 +88,7 @@ export function createConfigurationApp(config) {
             if (typeof storePasswordsInRedisClient !== 'undefined') {
               storePasswordsInRedisClient.get(tokenInfo.userId, (redisErr, redisRes) => { // eslint-disable-line no-unused-vars
                 if (redisErr) {
-                  return next(new Error('I\'m still a teapot'));
+                  return next(createError(500, 'I\'m still a teapot', {wrappedError: redisErr}));
                 }
 
                 var insecureUser = Object.assign({}, user, {secret: redisRes});
@@ -100,12 +101,18 @@ export function createConfigurationApp(config) {
             }
           })
           .catch((err) => {
-            return next(err);
+            return next(createError(500, 'Error creating configuration', {wrappedError: err}));
           });
       })
       .catch((err) => {
-        return next(err);
+        return next(createError(404, 'Token not found', {wrappedError: err}));
       });
+  });
+
+  // error handler
+  app.use((err, req, res, next) => {
+    log.error(err.message, {error: {message: err.message, stacktrace: err.stack}});
+    next();
   });
 
   return app;
