@@ -19,7 +19,7 @@ describe('borchk', function () {
   });
 
   xit('should succeed with anonymous credentials', function () {
-    var username = userEncode(716500, null);
+    var username = userEncode('716500', null);
     var password = username;
     var user = userStore.getUser(username, password);
 
@@ -30,7 +30,7 @@ describe('borchk', function () {
   });
 
   it('should fail with anonymous credentials and wrong password', function () {
-    var username = userEncode(716500, null);
+    var username = userEncode('716500', null);
     var password = 'wrong-password';
     var user = userStore.getUser(username, password);
 
