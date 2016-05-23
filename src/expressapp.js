@@ -121,6 +121,12 @@ export function createConfigurationApp(config) {
 export function createOAuthApp(config = {}) {
   var app = createBasicApp(config);
 
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
   app.oauth = OAuth2Server({
     model: new Model(app),
     grants: ['password'],
