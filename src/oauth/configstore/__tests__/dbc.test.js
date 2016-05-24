@@ -36,19 +36,29 @@ describe('dbc ConfigStore', function () {
     var user = userDecode('anUser@aLibrary');
     var expected = lodash.cloneDeep(config.default);
     expected.bar.agency = user.libraryId;
+    expected.agency = {order: user.libraryId, search: user.libraryId};
     return stores.configStore.get(user, {id: 'aClient'}).should.eventually.deep.equal(expected);
   });
 
 
   it('should retrieve the client-specific configuration', function () {
-    return stores.configStore.get(userDecode('anUser@aLibrary'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.clients.appDevLTD);
+    var user = userDecode('anUser@aLibrary');
+    var expected = config.clients.appDevLTD;
+    expected.agency = {order: user.libraryId, search: user.libraryId, agency: user.libraryId};
+    return stores.configStore.get(user, {id: 'appDevLTD'}).should.eventually.deep.equal(expected);
   });
 
   it('should retrieve the library-specific configuration', function () {
-    return stores.configStore.get(userDecode('anUser@000000'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.libraries['000000']);
+    var user = userDecode('anUser@000000');
+    var expected = config.libraries['000000'];
+    expected.agency = {order: user.libraryId, search: user.libraryId, agency: user.libraryId};
+    return stores.configStore.get(user, {id: 'appDevLTD'}).should.eventually.deep.equal(expected);
   });
 
   it('should retrieve the user-specific configuration', function () {
-    return stores.configStore.get(userDecode('donald@000000'), {id: 'appDevLTD'}).should.eventually.deep.equal(config.users['donald@000000']);
+    var user = userDecode('donald@000000');
+    var expected = config.users['donald@000000'];
+    expected.agency = {order: user.libraryId, search: user.libraryId, agency: user.libraryId};
+    return stores.configStore.get(user, {id: 'appDevLTD'}).should.eventually.deep.equal(expected);
   });
 });
