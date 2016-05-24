@@ -84,6 +84,10 @@ export function createConfigurationApp(config) {
         var client = {id: tokenInfo.clientId};
         return app.get('stores').configStore.get(user, client)
           .then((userConfig) => {
+            // merge user with existing config, to get hardcoded things like 'salt'
+            user = Object.assign(userConfig.user || {}, user);
+            userConfig.app = Object.assign(userConfig.app || {}, {clientId: tokenInfo.clientId});
+
             var storePasswordsInRedisClient = app.get('storePasswordsInRedisClient');
             if (typeof storePasswordsInRedisClient !== 'undefined') {
               storePasswordsInRedisClient.get(tokenInfo.userId, (redisErr, redisRes) => { // eslint-disable-line no-unused-vars
@@ -91,7 +95,7 @@ export function createConfigurationApp(config) {
                   return next(createError(500, 'I\'m still a teapot', {wrappedError: redisErr}));
                 }
 
-                var insecureUser = Object.assign({}, user, {secret: redisRes});
+                var insecureUser = Object.assign({}, user, {secret: redisRes, pin: redisRes});
                 res.json(Object.assign({}, userConfig, {user: insecureUser}));
               });
             }
