@@ -70,7 +70,20 @@ export const log = {
 
 
 export function userEncode(libraryId, userId) {
-  return (userId || '') + '@' + (libraryId || '');
+  libraryId = libraryId || '';
+  userId = userId || '';
+
+  if (typeof libraryId !== 'string') {
+    log.error('libraryId should be of type string, got ' + typeof libraryId, {libraryId: libraryId, userId: userId});
+    return null;
+  }
+
+  if (typeof userId !== 'string') {
+    log.error('userId should be of type string, got ' + typeof userId, {libraryId: libraryId, userId: userId});
+    return null;
+  }
+
+  return userId + '@' + libraryId;
 }
 
 export function userDecode(username) {
