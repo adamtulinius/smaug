@@ -22,8 +22,8 @@ export default class DbcConfigStore extends InmemoryConfigStore {
           config.agency = {};
         }
 
-        config.agency.search = user.libraryId;
-        config.agency.order = config.agency.order || user.libraryId;
+        config.agency.order = user.libraryId;
+        config.agency.search = config.agency.search || user.libraryId;
 
         return config;
       });
