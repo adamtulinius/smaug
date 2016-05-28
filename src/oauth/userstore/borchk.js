@@ -44,7 +44,7 @@ export default class UserStore {
         return isAuthenticated ? {id: username} : false; // TODO: is username/cpr the right userid?
       })
       .catch((err) => {
-        return err;
+        return Promise.reject(err);
       });
   }
 }
