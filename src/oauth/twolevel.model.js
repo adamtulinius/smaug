@@ -84,7 +84,7 @@ export class Model {
           // register username
           // throttler.registerAuthFailure(username);
           // and return a non-informative auth error
-          callback(new Error('authentication error'), null);
+          callback(false, null);
         }
       })
       .catch((err) => {
