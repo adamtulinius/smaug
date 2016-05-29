@@ -24,6 +24,25 @@ function createBasicApp(config) {
 
   app.disable('x-powered-by');
   app.set('json spaces', 2);
+  app.enable('trust proxy');
+
+  app.use((req, res, next) => {
+    var timeStart = moment();
+    res.logData = {};
+
+    res.on('finish', () => {
+      var timeEnd = moment();
+      log.info(null, Object.assign(res.logData || {},
+        {
+          type: 'accessLog',
+          request: {method: req.method, path: req.path, hostname: req.hostname, remoteAddress: req.ip},
+          response: {status: res.statusCode},
+          time: {start: timeStart, end: timeEnd, taken: timeEnd.diff(timeStart)}
+        }));
+    });
+
+    next();
+  });
 
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json());
@@ -65,6 +84,7 @@ function createBasicApp(config) {
       if (Object.keys(result.errors || {}).length > 0) {
         res.status(500);
       }
+      res.logData.health = result;
       res.json(result);
     });
   });
@@ -77,6 +97,8 @@ export function createConfigurationApp(config) {
 
   app.get('/configuration', (req, res, next) => {
     var bearerToken = req.query.token;
+
+    res.logData.token = bearerToken;
 
     app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((tokenInfo) => {
@@ -195,6 +217,7 @@ export function createAdminApp(config = {}) {
     if (_.every([typeof credentials.name === 'string', typeof credentials.pass === 'string'])) {
       var users = (app.get('config').admin || {}).users || {};
       if (users[credentials.name] === credentials.pass) {
+        res.logData.user = credentials.name;
         return next();
       }
     }
