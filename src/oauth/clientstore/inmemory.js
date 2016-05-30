@@ -23,7 +23,7 @@ export default class ClientStore {
     var client = this.clients[clientId];
 
     if (typeof client === 'undefined') {
-      return Promise.reject();
+      return Promise.reject(new Error('clientid not found'));
     }
     return Promise.resolve(Object.assign({}, client, {id: clientId}));
   }

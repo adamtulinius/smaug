@@ -18,6 +18,7 @@ const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-lin
 const splitMode = oAuthPort !== configurationPort;
 
 const storesToLoad = [
+  'agencyStore',
   'clientStore',
   'configStore',
   'userStore',
