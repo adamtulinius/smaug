@@ -126,7 +126,7 @@ describe('web app', function () {
           Object.assign(
           {},
             configStoreConfig.libraries[user.libraryId],
-            {user: Object.assign({}, user, {clientId: clientId, secret: password, pin: password})}
+            {user: Object.assign({}, user, {clientId: clientId, secret: password, pin: password, agency: user.libraryId})}
           )
         );
       })

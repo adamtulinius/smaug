@@ -103,6 +103,7 @@ export function createConfigurationApp(config) {
     app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((tokenInfo) => {
         var user = Object.assign(userDecode(tokenInfo.userId), {clientId: tokenInfo.clientId});
+        user.agency = user.libraryId;
         var client = {id: tokenInfo.clientId};
         return app.get('stores').configStore.get(user, client)
           .then((userConfig) => {
