@@ -38,7 +38,9 @@ export default class UserStore {
     return this.borchkClient.getBorrowerCheckResult(borchkRequest)
       .then((reply) => {
         const actualUserAuthenticated = reply.requestStatus === 'ok';
-        const imaginaryUserAuthenticated = reply.requestStatus === 'borrower_not_found' && typeof user.id === 'undefined' && typeof username === 'string' && username === password;
+        const imaginaryUserAuthenticated =
+          (reply.requestStatus === 'borrower_not_found' || reply.requestStatus === 'borrowercheck_not_allowed')
+          && typeof user.id === 'undefined' && typeof username === 'string' && username === password;
         const isAuthenticated = actualUserAuthenticated || imaginaryUserAuthenticated;
         log.info('borchk.getUser', {user: username, authenticated: isAuthenticated});
         return isAuthenticated ? {id: username} : false; // TODO: is username/cpr the right userid?
