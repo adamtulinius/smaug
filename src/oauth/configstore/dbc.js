@@ -42,7 +42,7 @@ export default class DbcConfigStore extends InmemoryConfigStore {
             })
             .catch((err) => { // eslint-disable-line no-unused-vars
               // since no options are required to be set, the config can just be returned.
-              reject(err);
+              resolve(config);
             });
         });
       })
