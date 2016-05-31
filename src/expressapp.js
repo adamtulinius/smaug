@@ -128,10 +128,12 @@ export function createConfigurationApp(config) {
             }
           })
           .catch((err) => {
+            log.error('Error creating configuration', {error: {message: err.message, stacktrace: err.stack}});
             return next(createError(500, 'Error creating configuration', {wrappedError: err}));
           });
       })
       .catch((err) => {
+        log.error('Error creating configuration', {error: {message: err.message, stacktrace: err.stack}});
         return next(createError(404, 'Token not found', {wrappedError: err}));
       });
   });
