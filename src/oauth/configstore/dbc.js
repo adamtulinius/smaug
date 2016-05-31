@@ -22,14 +22,16 @@ export default class DbcConfigStore extends InmemoryConfigStore {
         return new Promise((resolve, reject) => {
           return this.stores.clientStore.get(client.id)
             .then((fetchedClient) => {
-              if (typeof (fetchedClient.search || {}).agency !== 'undefined') {
-                config.search.agency = fetchedClient.search.agency;
-              }
+              var overrideAgency = typeof (fetchedClient.search || {}).agency !== 'undefined';
+              var overrideProfile = typeof (fetchedClient.search || {}).profile !== 'undefined';
 
-              if (typeof (fetchedClient.search || {}).profile === 'undefined') {
-                return reject(new Error('missing client.search.profile'));
+              if (overrideAgency && overrideProfile) {
+                config.search.agency = fetchedClient.search.agency;
+                config.search.profile = fetchedClient.search.profile;
               }
-              config.search.profile = fetchedClient.search.profile;
+              else if (overrideAgency || overrideProfile) {
+                return reject(new Error('both (or neither) client.search.agency and client.search.profile must be set'));
+              }
 
               if (typeof (fetchedClient.search || {}).collectionidentifiers === 'undefined') {
                 return reject(new Error('missing client.search.collectionidentifiers'));
