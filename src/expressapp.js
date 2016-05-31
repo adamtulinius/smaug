@@ -48,7 +48,7 @@ function createBasicApp(config) {
   app.use(bodyParser.json());
 
   app.get('/', function (req, res) {
-    res.send('Helpful text about Smaug.');
+    res.send('Smaug authentication system. Documentation: <a href="https://github.com/DBCDK/smaug#readme">https://github.com/DBCDK/smaug#readme</a>');
   });
 
   app.get('/health', (req, res) => {
