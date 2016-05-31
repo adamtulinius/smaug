@@ -33,10 +33,9 @@ export default class DbcConfigStore extends InmemoryConfigStore {
                 return reject(new Error('both (or neither) client.search.agency and client.search.profile must be set'));
               }
 
-              if (typeof (fetchedClient.search || {}).collectionidentifiers === 'undefined') {
-                return reject(new Error('missing client.search.collectionidentifiers'));
+              if (typeof (fetchedClient.search || {}).collectionidentifiers !== 'undefined') {
+                config.search.collectionidentifiers = fetchedClient.search.collectionidentifiers;
               }
-              config.search.collectionidentifiers = fetchedClient.search.collectionidentifiers;
 
               return resolve(config);
             })
