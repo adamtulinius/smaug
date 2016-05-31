@@ -60,7 +60,7 @@ export default class DbcConfigStore extends InmemoryConfigStore {
         });
       })
       .then((config) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => { // eslint-disable-line no-unused-vars
           return this.stores.agencyStore.get(user.libraryId)
             .then((fetchedAgency) => {
               if (typeof (fetchedAgency.ddbcms || {}).api === 'undefined') {
@@ -74,8 +74,9 @@ export default class DbcConfigStore extends InmemoryConfigStore {
 
               return resolve(config);
             })
-            .catch((err) => {
-              reject(err);
+            .catch((err) => { // eslint-disable-line no-unused-vars
+              // since no options are required to be set, the config can just be returned.
+              resolve(config);
             });
         });
       });
