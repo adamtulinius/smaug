@@ -35,7 +35,7 @@ function createBasicApp(config) {
       log.info(null, Object.assign(res.logData || {},
         {
           type: 'accessLog',
-          request: {method: req.method, path: req.path, hostname: req.hostname, remoteAddress: req.ip},
+          request: {method: req.method, path: req.path, query: req.query, hostname: req.hostname, remoteAddress: req.ip},
           response: {status: res.statusCode},
           time: {start: timeStart, end: timeEnd, taken: timeEnd.diff(timeStart)}
         }));
