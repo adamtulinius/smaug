@@ -104,7 +104,7 @@ describe('web app', function () {
       .type('form')
       .send({
         grant_type: 'password',
-        username: username,
+        username: userEncode(user.libraryId, user.id),
         password: password
       })
       .expect(function(res) {
@@ -122,13 +122,18 @@ describe('web app', function () {
       .get('/configuration?token=' + bearerToken)
       .expect(function(res) {
         var returnedConfig = JSON.parse(res.text);
-        returnedConfig.should.deep.equal(
-          Object.assign(
+        user.agency = user.libraryId;
+        user.pin = password;
+
+        var expected = Object.assign(
           {},
-            configStoreConfig.libraries[user.libraryId],
-            {user: Object.assign({}, user, {clientId: clientId, secret: password, pin: password, agency: user.libraryId})}
-          )
+          configStoreConfig.libraries[user.libraryId],
+          {user: user, app: {clientId: clientId}}
         );
+        expected.user.agency = user.libraryId;
+        expected.user.pin = password;
+
+        returnedConfig.should.deep.equal(expected);
       })
       .expect(200, done);
   });

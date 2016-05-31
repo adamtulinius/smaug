@@ -10,27 +10,11 @@ export default class DbcConfigStore extends InmemoryConfigStore {
       .then((unAugmentedConfig) => {
         var config = lodash.cloneDeep(unAugmentedConfig);
 
-        // support old config format
-        Object.keys(config).forEach((configKey) => {
-          if (typeof config[configKey] === 'object') {
-            config[configKey].agency = config[configKey].agency || user.libraryId;
-          }
-        });
-
-        // support new config format v2
-        if (typeof config.agency === 'undefined') {
-          config.agency = {};
-        }
-
-        config.agency.order = user.libraryId;
-        config.agency.search = config.agency.search || user.libraryId;
-
-        // support new config format v3
         if (typeof config.search === 'undefined') {
           config.search = {};
         }
 
-        config.search.agency = user.libraryId; // todo: this is client specific!
+        config.search.agency = user.libraryId;
 
         return config;
       })

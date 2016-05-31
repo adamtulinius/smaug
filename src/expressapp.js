@@ -102,7 +102,7 @@ export function createConfigurationApp(config) {
 
     app.get('stores').tokenStore.getAccessToken(bearerToken)
       .then((tokenInfo) => {
-        var user = Object.assign(userDecode(tokenInfo.userId), {clientId: tokenInfo.clientId});
+        var user = Object.assign(userDecode(tokenInfo.userId));
         user.agency = user.libraryId;
         var client = {id: tokenInfo.clientId};
         return app.get('stores').configStore.get(user, client)
@@ -118,7 +118,7 @@ export function createConfigurationApp(config) {
                   return next(createError(500, 'I\'m still a teapot', {wrappedError: redisErr}));
                 }
 
-                var insecureUser = Object.assign({}, user, {secret: redisRes, pin: redisRes});
+                var insecureUser = Object.assign({}, user, {pin: redisRes});
                 res.json(Object.assign({}, userConfig, {user: insecureUser}));
               });
             }
