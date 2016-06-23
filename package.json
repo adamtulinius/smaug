@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/DBCDK/smaug#readme",
   "dependencies": {
+    "activedirectory": "^0.7.2",
     "babel": "5.8.29",
     "babel-core": "5.8.29",
     "basic-auth": "^1.0.3",
