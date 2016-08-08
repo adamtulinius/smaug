@@ -12,10 +12,13 @@ Smaug is a system for granting OAuth2 access tokens, and mapping them to JSON-fo
 * Client Credentials
 
 
-### Requesting an access token
+### Requesting an annonymous access token
 
-`curl something something`
+`curl --user "$CLIENT_ID":"$CLIENT_SECRET" -X POST https://$smaugLocation/oauth/token -d 'grant_type=password&username=@&password=@'`
 
+## Requesting an authenticated access token
+
+`curl --user "$CLIENT_ID":"$CLIENT_SECRET" -X POST https://$smaugLocation/oauth/token -d 'grant_type=password&username=$CONSUMER_USERID@CONSUMER_LIBRARYID&password=$CONSUMER_PASSWORD'`
 
 ## Configuration
 

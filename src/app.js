@@ -30,7 +30,7 @@ var loadedStores = {};
 storesToLoad.forEach((storeName) => {
   var storeNameInConfig = storeName.toLowerCase();
   var storeConfig = config[storeNameInConfig];
-  var store = require('./oauth/' + storeNameInConfig + '/' + (storeConfig.backend || 'inmemory'));
+  var store = require('./oauth/' + storeNameInConfig + '/' + (storeConfig.backend || 'inmemory')).default;
   store.requiredOptions().forEach((requiredOption) => {
     if (typeof storeConfig[requiredOption] === 'undefined') {
       throw new Error('Missing option for ' + storeConfig.backend + ': ' + requiredOption);
