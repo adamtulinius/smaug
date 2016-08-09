@@ -3,11 +3,13 @@
  */
 
 import Sequelize from 'sequelize';
-import ClientStore from './inmemory';
+import NodeCache from 'node-cache';
 import uuid from 'uuid';
 import {randomBytes} from 'crypto';
-import {log} from '../../utils';
 import {isEqual} from 'lodash';
+
+import {log} from '../../utils';
+import ClientStore from './inmemory';
 import ClientModel from '../models/Client.model';
 
 export default class PostgresClientStore extends ClientStore {
@@ -28,10 +30,10 @@ export default class PostgresClientStore extends ClientStore {
     }
 
     // Check the contents of config.
-    if (client.config) {
+    if (client.config && client.config.search) {
       const errors = ['agency', 'profile', 'collectionidentifiers']
         .filter(configField => {
-          if (client.config[configField] && typeof client.config[configField] !== 'string') {
+          if (client.config.search[configField] && typeof client.config.search[configField] !== 'string') {
             return true;
           }
 
@@ -71,6 +73,11 @@ export default class PostgresClientStore extends ClientStore {
     this.sequelize = new Sequelize(config.db, {logging: log.info});
     this.clients = ClientModel(this.sequelize);
     this.clients.sync({force: !!config.forceDBSync});
+
+    this.clientCache = new NodeCache({
+      stdTTL: 30, // Time to live, 30 seconds
+      checkperiod: 15 // check for outdated entries every 15 seconds.
+    });
   }
 
   ping() {
@@ -101,12 +108,20 @@ export default class PostgresClientStore extends ClientStore {
   }
 
   get(clientId) {
+    const cachedEntry = this.clientCache.get(clientId);
+
+    if (cachedEntry) {
+      return Promise.resolve(cachedEntry);
+    }
+
     return this.clients.findByPrimary(clientId).then(client => {
       if (!client) {
         return Promise.reject('ClientId not found');
       }
 
-      return client.get({plain: true});
+      const clientEntry = client.get({plain: true});
+      this.clientCache.set(clientId, clientEntry);
+      return clientEntry;
     });
   }
 
@@ -153,6 +168,9 @@ export default class PostgresClientStore extends ClientStore {
       }
 
       return clientInstance.update(client).then(updatedInstance => {
+        // Bust a cache!
+        this.clientCache.del(clientId);
+
         return updatedInstance.get({plain: true});
       });
     });
@@ -164,6 +182,8 @@ export default class PostgresClientStore extends ClientStore {
         return Promise.reject('Could not find client!');
       }
 
+      // Bust a cache!
+      this.clientCache.del(clientId);
       return clientInstance.destroy();
     });
   }
