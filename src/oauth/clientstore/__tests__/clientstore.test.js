@@ -15,7 +15,7 @@ var backends = {
   },
   postgres: () => {
     return new PostgresClientStore({}, {
-      db: 'postgres://smaug:smaug1234@localhost:5432/test_clients',
+      db: 'postgres://postgres@localhost:5432/test_clients',
       forceDBSync: true // This drops any existing tables, which means a clean db.
     });
   }

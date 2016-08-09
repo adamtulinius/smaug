@@ -3,6 +3,9 @@ sudo: false
 dist: trusty
 services:
   - redis-server
+  - postgresql
+before_script:
+- psql -c 'create database test_clients;' -U postgres
 script:
 - npm test
 - npm run lint
