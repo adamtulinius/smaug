@@ -4,6 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import InmemoryClientStore from '../../clientstore/inmemory';
+import PostgresClientStore from '../../clientstore/postgres';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -11,6 +12,12 @@ chai.should();
 var backends = {
   inmemory: () => {
     return new InmemoryClientStore({});
+  },
+  postgres: () => {
+    return new PostgresClientStore({}, {
+      db: 'postgres://postgres@localhost:5432/test_clients',
+      forceDBSync: true // This drops any existing tables, which means a clean db.
+    });
   }
 };
 
@@ -20,7 +27,7 @@ Object.keys(backends).forEach((backendName) => {
     var chance = new Chance();
     var clientStore = null;
     var clientId = null;
-    var client = {name: 'a-client', secret: chance.string()};
+    var client = {name: 'a-client', secret: chance.string(), config: {}, contact: {owner: {name: '', phone: '', email: ''}}};
 
     it('should initialize', function () {
       clientStore = new backends[backendName]();
@@ -40,7 +47,8 @@ Object.keys(backends).forEach((backendName) => {
     });
 
     it('should retrieve and validate a client', function () {
-      return clientStore.getAndValidate(clientId, client.secret).should.eventually.deep.equal(Object.assign({}, client, {id: clientId}));
+      const expectedKeys = Object.keys(Object.assign({}, client, {id: clientId}));
+      return clientStore.getAndValidate(clientId, client.secret).should.eventually.include.keys(expectedKeys);
     });
 
     it('should fail to retrieve a client with the wrong secret', function () {
