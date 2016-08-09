@@ -43,7 +43,7 @@ export class Model {
       })
       .catch((err) => {
         log.info('model.getClient failure', {clientId: clientId, err: err});
-        callback(err, false);
+        callback(null, false);
       });
   }
 

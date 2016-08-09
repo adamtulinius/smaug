@@ -77,6 +77,20 @@ describe('web app', function () {
       .expect(400, done);
   });
 
+  it('should return an error when requesting a token with invalid client credentials', function (done) {
+    request(app)
+      .post('/oauth/token')
+      .auth('invalid', 'invalid')
+      .type('form')
+      .send({
+        grant_type: 'password',
+        username: userEncode(null, null),
+        password: userEncode(null, null)
+      })
+      .expect(400, done);
+  });
+
+
   it('should return a token when logging in as anonymous', function (done) {
     request(app)
       .post('/oauth/token')
