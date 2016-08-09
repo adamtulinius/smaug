@@ -29,7 +29,7 @@ describe('admin app', function () {
     chance = new Chance();
     username = chance.word({length: 10});
     password = chance.string();
-    client = {name: 'a-client', secret: chance.string()};
+    client = {name: 'a-client', secret: chance.string(), config: {}, contact: {owner: {name: '', phone: '', email: ''}}};
 
     appConfig = {
       admin: {

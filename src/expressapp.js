@@ -249,11 +249,12 @@ export function createAdminApp(config = {}) {
     .post((req, res) => {
       // create client
       var client = {
-        name: req.body.name
+        name: req.body.name,
+        config: req.body.config,
+        contact: req.body.contact
       };
 
       app.get('stores').clientStore.create(client)
-        .then(filterClient)
         .then((persistedClient) => {
           res.json(persistedClient);
         })
@@ -277,10 +278,16 @@ export function createAdminApp(config = {}) {
     .put((req, res) => {
       // update client
       var clientId = req.params.clientId;
-      var client = {
-        name: req.body.name
-      };
+      var client = {};
+
+      ['name', 'config', 'contact'].forEach(field => {
+        if (req.body[field]) {
+          client[field] = req.body[field];
+        }
+      });
+
       app.get('stores').clientStore.update(clientId, client)
+        .then(filterClient)
         .then((persistedClient) => {
           res.json(persistedClient);
         })
