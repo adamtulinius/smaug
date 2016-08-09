@@ -3,11 +3,12 @@
  */
 
 import Sequelize from 'sequelize';
-import ClientStore from './inmemory';
 import uuid from 'uuid';
 import {randomBytes} from 'crypto';
-import {log} from '../../utils';
 import {isEqual} from 'lodash';
+
+import {log} from '../../utils';
+import ClientStore from './inmemory';
 import ClientModel from '../models/Client.model';
 
 export default class PostgresClientStore extends ClientStore {
@@ -28,10 +29,10 @@ export default class PostgresClientStore extends ClientStore {
     }
 
     // Check the contents of config.
-    if (client.config) {
+    if (client.config && client.config.search) {
       const errors = ['agency', 'profile', 'collectionidentifiers']
         .filter(configField => {
-          if (client.config[configField] && typeof client.config[configField] !== 'string') {
+          if (client.config.search[configField] && typeof client.config.search[configField] !== 'string') {
             return true;
           }
 

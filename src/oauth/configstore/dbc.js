@@ -50,22 +50,18 @@ export default class DbcConfigStore extends InmemoryConfigStore {
         return new Promise((resolve, reject) => {
           return this.stores.clientStore.get(client.id)
             .then((fetchedClient) => {
-              var overrideAgency = typeof (fetchedClient.search || {}).agency !== 'undefined';
-              var overrideProfile = typeof (fetchedClient.search || {}).profile !== 'undefined';
+              const clientConfig = Object.assign({}, fetchedClient.config);
 
-              if (overrideAgency && overrideProfile) {
-                config.search.agency = fetchedClient.search.agency;
-                config.search.profile = fetchedClient.search.profile;
-              }
-              else if (overrideAgency || overrideProfile) {
+              var overrideAgency = typeof (clientConfig.search || {}).agency !== 'undefined';
+              var overrideProfile = typeof (clientConfig.search || {}).profile !== 'undefined';
+
+              if (overrideAgency ? !overrideProfile : overrideProfile) { // XOR
                 return reject(new Error('both (or neither) client.search.agency and client.search.profile must be set'));
               }
 
-              if (typeof (fetchedClient.search || {}).collectionidentifiers !== 'undefined') {
-                config.search.collectionidentifiers = fetchedClient.search.collectionidentifiers;
-              }
-
-              return resolve(config);
+              return resolve(
+                lodash.defaultsDeep(clientConfig, config)
+              );
             })
             .catch((err) => {
               reject(err);

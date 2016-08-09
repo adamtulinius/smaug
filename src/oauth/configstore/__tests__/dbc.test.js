@@ -47,8 +47,8 @@ describe('dbc ConfigStore', function () {
   });
   stores.clientStore = new InmemoryClientStore(stores, {
     clients: {
-      appDevLTD: {search: {agency: '190101', profile: 'default', collectionidentifiers: ''}},
-      aClient: {search: {agency: '190101', profile: 'default', collectionidentifiers: ''}}
+      appDevLTD: {config: {search: {agency: '190101', profile: 'default', collectionidentifiers: ''}}},
+      aClient: {config: {search: {agency: '190101', profile: 'default', collectionidentifiers: ''}}}
     }
   });
 
