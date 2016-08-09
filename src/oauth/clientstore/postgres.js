@@ -3,6 +3,7 @@
  */
 
 import Sequelize from 'sequelize';
+import NodeCache from 'node-cache';
 import uuid from 'uuid';
 import {randomBytes} from 'crypto';
 import {isEqual} from 'lodash';
@@ -72,6 +73,11 @@ export default class PostgresClientStore extends ClientStore {
     this.sequelize = new Sequelize(config.db, {logging: log.info});
     this.clients = ClientModel(this.sequelize);
     this.clients.sync({force: !!config.forceDBSync});
+
+    this.clientCache = new NodeCache({
+      stdTTL: 30, // Time to live, 30 seconds
+      checkperiod: 15 // check for outdated entries every 15 seconds.
+    });
   }
 
   ping() {
@@ -102,12 +108,20 @@ export default class PostgresClientStore extends ClientStore {
   }
 
   get(clientId) {
+    const cachedEntry = this.clientCache.get(clientId);
+
+    if (cachedEntry) {
+      return Promise.resolve(cachedEntry);
+    }
+
     return this.clients.findByPrimary(clientId).then(client => {
       if (!client) {
         return Promise.reject('ClientId not found');
       }
 
-      return client.get({plain: true});
+      const clientEntry = client.get({plain: true});
+      this.clientCache.set(clientId, clientEntry);
+      return clientEntry;
     });
   }
 
