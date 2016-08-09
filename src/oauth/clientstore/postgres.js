@@ -168,6 +168,9 @@ export default class PostgresClientStore extends ClientStore {
       }
 
       return clientInstance.update(client).then(updatedInstance => {
+        // Bust a cache!
+        this.clientCache.del(clientId);
+
         return updatedInstance.get({plain: true});
       });
     });
@@ -179,6 +182,8 @@ export default class PostgresClientStore extends ClientStore {
         return Promise.reject('Could not find client!');
       }
 
+      // Bust a cache!
+      this.clientCache.del(clientId);
       return clientInstance.destroy();
     });
   }
