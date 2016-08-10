@@ -2,15 +2,10 @@
  * @file: This file implements the postgres backend for the clientstore.
  */
 
-import Sequelize from 'sequelize';
 import NodeCache from 'node-cache';
 import uuid from 'uuid';
 import {randomBytes} from 'crypto';
-import {isEqual} from 'lodash';
-
-import {log} from '../../utils';
 import ClientStore from './inmemory';
-import ClientModel from '../../models/Client.model';
 
 export default class PostgresClientStore extends ClientStore {
   static validateClientTypes(client) {
@@ -54,7 +49,8 @@ export default class PostgresClientStore extends ClientStore {
     // Check each contact for name, phone, and email.
     if (client.contact) {
       for (const contact in client.contact) {
-        if (client.contact.hasOwnProperty(contact) && !isEqual(Object.keys(client.contact[contact]), ['name', 'phone', 'email'])) {
+        const contactKeys = Object.keys(client.contact[contact]);
+        if (!(contactKeys.includes('name') && contactKeys.includes('phone') && contactKeys.includes('email'))) {
           return Promise.reject('All contacts must contain: name, phone, and email.');
         }
       }
@@ -64,15 +60,11 @@ export default class PostgresClientStore extends ClientStore {
   }
 
   constructor(stores, config) {
-    super();
+    super(stores, config);
 
-    if (!config || !config.db) {
-      throw new Error('db field not found in config!');
-    }
-
-    this.sequelize = new Sequelize(config.db, {logging: log.info});
-    this.clients = ClientModel(this.sequelize);
-    this.clients.sync({force: !!config.forceDBSync});
+    this.sequelize = config.backend.sequelize;
+    this.models = config.backend.models;
+    this.clients = this.models.Client;
 
     this.clientCache = new NodeCache({
       stdTTL: 30, // Time to live, 30 seconds

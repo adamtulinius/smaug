@@ -4,8 +4,19 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import moment from 'moment';
+import redis from 'redis';
+
+import Sequelize from 'sequelize';
+
 import InmemoryTokenStore from '../inmemory';
 import RedisTokenStore from '../redis';
+import PostgresTokenStore from '../postgres';
+
+import {log} from '../../../utils';
+import PostgresModels from '../../../models';
+
+const sequelize = new Sequelize('postgres://postgres@localhost:5432/smaug_test', {logging: log.info});
+const models = PostgresModels(sequelize, false);
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -15,7 +26,15 @@ var backends = {
     return new InmemoryTokenStore();
   },
   redis: () => {
-    return new RedisTokenStore();
+    return new RedisTokenStore({}, {backend: {redisClient: redis.createClient()}});
+  },
+  postgres: () => {
+    return new PostgresTokenStore({}, {
+      backend: {
+        sequelize,
+        models
+      }
+    });
   }
 };
 
@@ -28,6 +47,23 @@ Object.keys(backends).forEach((backendName) => {
     var clientId = chance.string();
     var expires = moment().add(1, 'days');
     var user = {id: chance.string()};
+
+    before(done => {
+      if (backendName === 'postgres') {
+        models.Client.create({
+          id: clientId,
+          secret: 'very secret',
+          name: 'a very testy app.',
+          contact: {name: 'a', email: 'b', phone: 'c'},
+          config: {}
+        })
+          .then(() => done())
+          .catch(done);
+      }
+      else {
+        done();
+      }
+    });
 
     it('should initialize', function () {
       tokenStore = new backends[backendName]({});

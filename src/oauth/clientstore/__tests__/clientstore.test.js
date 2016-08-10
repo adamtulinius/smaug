@@ -6,6 +6,13 @@ import Chance from 'chance';
 import InmemoryClientStore from '../../clientstore/inmemory';
 import PostgresClientStore from '../../clientstore/postgres';
 
+import {log} from '../../../utils';
+import Sequelize from 'sequelize';
+import PostgresModels from '../../../models';
+
+const sequelize = new Sequelize('postgres://postgres@localhost:5432/smaug_test', {logging: log.info});
+const models = PostgresModels(sequelize, false);
+
 chai.use(chaiAsPromised);
 chai.should();
 
@@ -15,8 +22,10 @@ var backends = {
   },
   postgres: () => {
     return new PostgresClientStore({}, {
-      db: 'postgres://postgres@localhost:5432/test_clients',
-      forceDBSync: true // This drops any existing tables, which means a clean db.
+      backend: {
+        sequelize,
+        models
+      }
     });
   }
 };
