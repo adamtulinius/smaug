@@ -30,7 +30,7 @@ export default function ClientModel(sequelize) {
   }, {
     indexes: [{
       unique: true,
-      fields: ['id', 'secret']
+      fields: ['id']
     }]
   });
 }
