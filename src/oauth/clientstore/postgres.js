@@ -10,7 +10,7 @@ import {isEqual} from 'lodash';
 
 import {log} from '../../utils';
 import ClientStore from './inmemory';
-import ClientModel from '../models/Client.model';
+import ClientModel from '../../models/Client.model';
 
 export default class PostgresClientStore extends ClientStore {
   static validateClientTypes(client) {
