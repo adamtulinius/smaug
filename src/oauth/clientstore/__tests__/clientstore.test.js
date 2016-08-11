@@ -6,12 +6,7 @@ import Chance from 'chance';
 import InmemoryClientStore from '../../clientstore/inmemory';
 import PostgresClientStore from '../../clientstore/postgres';
 
-import {log} from '../../../utils';
-import Sequelize from 'sequelize';
-import PostgresModels from '../../../models';
-
-const sequelize = new Sequelize('postgres://postgres@localhost:5432/smaug_test', {logging: log.info});
-const models = PostgresModels(sequelize, false);
+import models from '../../../models';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -23,8 +18,7 @@ var backends = {
   postgres: () => {
     return new PostgresClientStore({}, {
       backend: {
-        sequelize,
-        models
+        models: models()
       }
     });
   }

@@ -5,12 +5,14 @@ services:
   - redis-server
 addons:
   postgresql: "9.4"
+env:
+ - DATABASE_URI="postgres://postgres@localhost:5432/smaug_test"
 before_script:
 - psql -c 'create database smaug_test;' -U postgres
+- npm run migrate
 script:
 - npm test
 - npm run lint
-- npm run lint:checkstyle
 notifications:
   slack:
     secure: PiuPx0FRRN7u99SO2ZTa9yKY+U0C4ZEkfYqOQdogavWv1SQoli2hijlTc2/Zn5kANkbsdEKHhhz4UyBgXjVh5iq3ny3JAux9KL6l3wW9S55Q9uFqoeRaMQWaLbw+QblCkUrV/z51e8Gatas8TRoiWRm3GPRUj+lN1bCNkSZENrq+YFu12w3wRvtwYrAczPEjPSz+GXn+C+XWxKg/P6r9+mStRbYmaOGtEt2vZgOAUZSZ/wYjHUcEQBvGc70Jh3iBLPIgKw0d3lIJn7jZUXN8YPu1hSC96z6RrUXEAFHXdUbst15S9R8577MwmTxHooCTlTuRi7sZu2DQBD8OmfF3/A5XZ/LjxG3x9xe5kOXHtO0P9e3VAQoAhSaPep6SyRQOo7HehVONhDXjTjc1AN4TBrxqyTqicADMHF+zsIUf79GiDEwZVxGKsBs2IPzmRMYAlUvyu+GEkNJgpKzsTd875mvil3GJ/QLS65zF1fOnqCmDi6JuWl4inlvR4JqpDyub++uUww21t6OEIjgPzliqqdW4gGFRzQyPqkX9XCZs/NshJXz115m8VpZ+Uq5TPiP8PY8nyE/Smrc5al29BCXcCq5VVd4FZ7MCir26qECUsbStGOqbhQDvLo4gtoJLgSqcWd6HthJbkdukdDvLNa6xn+sqGU5xowrVZLf8LTMFbm4=

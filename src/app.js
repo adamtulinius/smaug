@@ -2,11 +2,10 @@
 
 import fs from 'fs';
 import minimist from 'minimist';
-import Sequelize from 'sequelize';
 import redis from 'redis';
 import {log} from './utils';
 import {createApp, createAdminApp, createOAuthApp, createConfigurationApp} from './expressapp';
-import PostgresModels from './models';
+import models from './models';
 
 const args = minimist(process.argv.slice(2));
 const config = JSON.parse(
@@ -21,9 +20,7 @@ const configurationPort = process.env.PORT_CONFIG || port; // eslint-disable-lin
 const splitMode = oAuthPort !== configurationPort;
 
 if (config.datasources && config.datasources.postgres) {
-  const sequelize = new Sequelize(config.datasources.postgres.uri, {logging: log.info});
-  config.datasources.postgres.models = PostgresModels(sequelize, config.datasources.postgres.forceDBSync);
-  config.datasources.postgres.sequelize = sequelize;
+  config.datasources.postgres.models = models(config.datasources.postgres);
 }
 
 if (config.datasources && config.datasources.redis) {

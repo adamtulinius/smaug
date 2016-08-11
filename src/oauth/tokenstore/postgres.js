@@ -9,9 +9,9 @@ class TokenStore extends MemoryTokenStore {
   constructor(stores, config = {}) {
     super(stores, config);
 
-    this.sequelize = config.backend.sequelize;
+    this.sequelize = config.backend.models.sequelize;
     this.models = config.backend.models;
-    this.tokens = this.models.Token;
+    this.tokens = this.models.tokens;
 
     this.tokenCache = new NodeCache({
       stdTTL: 30, // Time to live, 30 seconds
@@ -34,7 +34,7 @@ class TokenStore extends MemoryTokenStore {
    */
   storeAccessToken(accessToken, clientId, expires, user) {
     return this.tokens.create({
-      accessToken: accessToken,
+      id: accessToken,
       clientId: clientId,
       userId: user.id,
       expires: expires.toISOString()
@@ -68,10 +68,9 @@ class TokenStore extends MemoryTokenStore {
       // No valid token was cached, check postgres
       this.tokens.findOne({
         where: {
-          accessToken: bearerToken,
+          id: bearerToken,
           expires: {$gte: now.toISOString()}
-        },
-        include: [this.models.Client]
+        }
       }).then(tokenResponse => {
         // No token in postgres.
         if (!tokenResponse) {
@@ -80,6 +79,7 @@ class TokenStore extends MemoryTokenStore {
 
         // Get a plain token object and update the cache.
         const token = tokenResponse.get({plain: true});
+        token.accessToken = token.id;
         this.tokenCache.set(bearerToken, token);
         return resolve(token);
       });
