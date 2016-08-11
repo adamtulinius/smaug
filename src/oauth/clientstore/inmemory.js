@@ -1,5 +1,6 @@
 'use strict';
 
+import {randomBytes} from 'crypto';
 import uuid from 'uuid';
 
 export default class ClientStore {
@@ -16,7 +17,7 @@ export default class ClientStore {
   }
 
   create(client) {
-    return this.update(uuid.v4(), client);
+    return this.update(uuid.v4(), Object.assign(client, {secret: randomBytes(32).toString('hex')}));
   }
 
   get(clientId) { // eslint-disable-line no-unused-vars

@@ -3,7 +3,6 @@
  */
 
 import NodeCache from 'node-cache';
-import {randomBytes} from 'crypto';
 import ClientStore from './inmemory';
 
 export default class PostgresClientStore extends ClientStore {
@@ -82,7 +81,9 @@ export default class PostgresClientStore extends ClientStore {
       }
 
       const requiredAttributes = ['name', 'config', 'contact'];
-      const errors = requiredAttributes.filter(field => !client[field]).map(field => `Missing field: ${field}`);
+      const errors = [];
+      errors.concat(requiredAttributes.filter(field => !client[field]).map(field => `Missing field: ${field}`));
+      errors.concat(Object.keys(client).filter(field => requiredAttributes.indexOf(field) < 0).map(field => `Illegal field: ${field}`));
 
       if (errors.length > 0) {
         return reject({errors});
@@ -91,9 +92,8 @@ export default class PostgresClientStore extends ClientStore {
       return PostgresClientStore.validateClientTypes(client)
         .then(resolve).catch(reject);
     }).then(() => {
-      const clientSecret = randomBytes(32).toString('hex');
 
-      return this.clients.create(Object.assign(client, {secret: clientSecret}));
+      return this.clients.create(client);
     });
   }
 
@@ -144,7 +144,7 @@ export default class PostgresClientStore extends ClientStore {
 
       // We don't let you update the secret or the client id
       if (client.secret || (client.id && clientId !== client.id)) {
-        return reject('You cannot update a client secret or id! Create a new one!');
+        return reject('You cannot update a client id or secret! Create a new client instead!');
       }
 
       // And we also want to run default validations.
