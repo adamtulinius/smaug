@@ -23,13 +23,14 @@ describe('admin app', function () {
   var username = null;
   var password = null;
   var clientId = null;
+  var clientSecret = null;
   var client = null;
 
   before(function () {
     chance = new Chance();
     username = chance.word({length: 10});
     password = chance.string();
-    client = {name: 'a-client', secret: chance.string(), config: {}, contact: {owner: {name: '', phone: '', email: ''}}};
+    client = {name: 'a-client', config: {}, contact: {owner: {name: '', phone: '', email: ''}}};
 
     appConfig = {
       admin: {
@@ -97,7 +98,8 @@ describe('admin app', function () {
         .send(JSON.stringify(client))
         .expect((res) => {
           clientId = res.body.id;
-          res.body.should.deep.equal(clientWithId(filterClient(client), clientId));
+          clientSecret = res.body.secret;
+          res.body.should.deep.equal(Object.assign({}, client, {id: clientId, secret: clientSecret}));
         })
         .expect(200, done);
     });
