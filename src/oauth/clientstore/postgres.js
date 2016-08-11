@@ -3,7 +3,6 @@
  */
 
 import NodeCache from 'node-cache';
-import uuid from 'uuid';
 import {randomBytes} from 'crypto';
 import ClientStore from './inmemory';
 
@@ -62,9 +61,9 @@ export default class PostgresClientStore extends ClientStore {
   constructor(stores, config) {
     super(stores, config);
 
-    this.sequelize = config.backend.sequelize;
+    this.sequelize = config.backend.models.sequelize;
     this.models = config.backend.models;
-    this.clients = this.models.Client;
+    this.clients = this.models.clients;
 
     this.clientCache = new NodeCache({
       stdTTL: 30, // Time to live, 30 seconds
@@ -92,10 +91,9 @@ export default class PostgresClientStore extends ClientStore {
       return PostgresClientStore.validateClientTypes(client)
         .then(resolve).catch(reject);
     }).then(() => {
-      const clientId = uuid.v4();
       const clientSecret = randomBytes(32).toString('hex');
 
-      return this.clients.create(Object.assign(client, {id: clientId, secret: clientSecret}));
+      return this.clients.create(Object.assign(client, {secret: clientSecret}));
     });
   }
 

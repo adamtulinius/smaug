@@ -1,19 +1,34 @@
-/**
- * @file: This file instantiates the sequelize models.
- */
+'use strict';
 
-export default function Models(sequelize, forceDBSync) {
-  const models = {};
-  const modelsToLoad = [
-    'Client',
-    'Token'
-  ];
+import fs from 'fs';
+import path from 'path';
+import Sequelize from 'sequelize';
+import {log} from '../utils';
 
-  modelsToLoad.forEach(model => {
-    const Model = require(`./${model}.model.js`).default;
-    models[model] = Model(sequelize, models);
-    models[model].sync({force: forceDBSync});
+export default function models(config) {
+  const basename = path.basename(module.filename);
+  const sequelize = new Sequelize(process.env.DATABASE_URI || config.uri, {logging: log.debug});
+
+  const db = {};
+
+  fs
+    .readdirSync(__dirname)
+    .filter(function(file) {
+      return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
+    })
+    .forEach(function(file) {
+      const model = sequelize['import'](path.join(__dirname, file));
+      db[model.name] = model;
+    });
+
+  Object.keys(db).forEach(function(modelName) {
+    if (db[modelName].associate) {
+      db[modelName].associate(db);
+    }
   });
 
-  return models;
+  db.sequelize = sequelize;
+  db.Sequelize = Sequelize;
+
+  return db;
 }

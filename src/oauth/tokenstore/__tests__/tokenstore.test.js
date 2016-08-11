@@ -5,21 +5,18 @@ import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import moment from 'moment';
 import redis from 'redis';
-
-import Sequelize from 'sequelize';
+import uuid from 'uuid';
 
 import InmemoryTokenStore from '../inmemory';
 import RedisTokenStore from '../redis';
 import PostgresTokenStore from '../postgres';
 
-import {log} from '../../../utils';
-import PostgresModels from '../../../models';
-
-const sequelize = new Sequelize('postgres://postgres@localhost:5432/smaug_test', {logging: log.info});
-const models = PostgresModels(sequelize, false);
+import models from '../../../models';
 
 chai.use(chaiAsPromised);
 chai.should();
+
+const pgModels = models();
 
 var backends = {
   inmemory: () => {
@@ -31,8 +28,7 @@ var backends = {
   postgres: () => {
     return new PostgresTokenStore({}, {
       backend: {
-        sequelize,
-        models
+        models: pgModels
       }
     });
   }
@@ -44,13 +40,13 @@ Object.keys(backends).forEach((backendName) => {
     var chance = new Chance();
     var tokenStore = null;
     var token = chance.string();
-    var clientId = chance.string();
+    var clientId = uuid.v4();
     var expires = moment().add(1, 'days');
     var user = {id: chance.string()};
 
     before(done => {
       if (backendName === 'postgres') {
-        models.Client.create({
+        pgModels.clients.create({
           id: clientId,
           secret: 'very secret',
           name: 'a very testy app.',
@@ -72,7 +68,7 @@ Object.keys(backends).forEach((backendName) => {
 
     describe('tokens', function () {
       it('should fail to retrieve an unknown access token', function () {
-        return tokenStore.getAccessToken('404').should.be.rejected;
+        return tokenStore.getAccessToken(uuid.v4()).should.be.rejected;
       });
 
       it('should store a token', function () {
