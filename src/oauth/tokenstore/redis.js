@@ -1,7 +1,6 @@
 'use strict';
 
 import moment from 'moment';
-import redis from 'redis';
 
 /**
  * @file Access/Store tokens and clients in Redis.
@@ -13,9 +12,8 @@ class TokenStore {
   }
 
   constructor(stores, config = {}) { // eslint-disable-line no-unused-vars
-    // initialize redis client
-    this.redisConfig = config.redis || {};
-    this.redisClient = redis.createClient(this.redisConfig);
+    // Get the redis client
+    this.redisClient = config.backend.redisClient;
   }
 
 
