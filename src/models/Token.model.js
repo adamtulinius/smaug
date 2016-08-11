@@ -18,6 +18,11 @@ export default function TokenModel(sequelize, models) {
       type: Sequelize.DATE,
       allowNull: false
     }
+  }, {
+    indexes: [{
+      unique: true,
+      fields: ['accessToken']
+    }]
   });
 
   // A token belongs to a client.
