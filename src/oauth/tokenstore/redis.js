@@ -130,6 +130,30 @@ class TokenStore {
         return Promise.reject(err);
       });
   }
+
+  clearAccessTokensForUser() {
+    return Promise.reject('Not implemented for this backend!');
+  }
+
+  revokeToken(bearerToken) {
+    const redisClient = this.redisClient;
+    const key = 'accessToken:' + bearerToken;
+
+    return new Promise((resolve, reject) => {
+      redisClient.hdel(key, 'clientId', 'userId', (err, reply) => {
+        if (err) {
+          return reject(err);
+        }
+
+        let deleteCount = 0;
+        if (reply > 0) {
+          deleteCount = reply / 2; // we delete two fields, but only one token.
+        }
+
+        return resolve({count: deleteCount});
+      });
+    });
+  }
 }
 
 

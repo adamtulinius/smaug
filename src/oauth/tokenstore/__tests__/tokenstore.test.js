@@ -121,6 +121,15 @@ Object.keys(backends).forEach((backendName) => {
             throw error;
           });
       });
+
+      it('should be possible to revoke a token.', (done) => {
+        return tokenStore.revokeToken(token)
+          .then(() => tokenStore.getAccessToken(token))
+          .catch(err => {
+            err.message.should.equal('bearerToken not found');
+            done();
+          });
+      });
     });
   });
 });

@@ -147,6 +147,26 @@ export function createConfigurationApp(config) {
   return app;
 }
 
+function handleRevokeToken(req, res, next) {
+  const token = req.params.token;
+  res.logData.token = token;
+
+  req.app.get('stores').tokenStore.revokeToken(token)
+    .then(response => res.json(response))
+    .catch(error => next(new Error(error)));
+}
+
+function handleRevokeTokensForUser(req, res, next) {
+  const tokenStore = req.app.get('stores').tokenStore;
+  const token = req.query.token;
+  res.logData.token = token;
+
+  tokenStore.getAccessToken(token).then(tokenInfo => {
+    return tokenStore.clearAccessTokensForUser(tokenInfo.userId);
+  }).then(response => res.json(response))
+    .catch(error => next(new Error(error)));
+}
+
 export function createOAuthApp(config = {}) {
   var app = createBasicApp(config);
 
@@ -182,6 +202,8 @@ export function createOAuthApp(config = {}) {
     next();
   });
   app.post('/oauth/token', app.oauth.grant());
+  app.delete('/oauth/token/:token', handleRevokeToken);
+  app.delete('/oauth/tokens', handleRevokeTokensForUser);
   app.use(app.oauth.errorHandler());
 
   return app;
