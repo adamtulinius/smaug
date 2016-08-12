@@ -35,7 +35,13 @@ function createBasicApp(config) {
       log.info(null, Object.assign(res.logData || {},
         {
           type: 'accessLog',
-          request: {method: req.method, path: req.path, query: req.query, hostname: req.hostname, remoteAddress: req.ip},
+          request: {
+            method: req.method,
+            path: req.path,
+            query: req.query,
+            hostname: req.hostname,
+            remoteAddress: req.ip
+          },
           response: {status: res.statusCode},
           time: {start: timeStart, end: timeEnd, taken: timeEnd.diff(timeStart)}
         }));
@@ -75,7 +81,12 @@ function createBasicApp(config) {
           if (typeof result.errors === 'undefined') {
             result.errors = {};
           }
-          result.errors[storeId] = {name: status.result.name, msg: status.result.message, stacktrace: status.result.stack, responseTime: status.responseTime};
+          result.errors[storeId] = {
+            name: status.result.name,
+            msg: status.result.message,
+            stacktrace: status.result.stack,
+            responseTime: status.responseTime
+          };
         }
         else {
           result.ok[storeId] = {responseTime: status.responseTime};
@@ -180,7 +191,7 @@ export function createOAuthApp(config = {}) {
     model: new Model(app),
     grants: ['password'],
     debug: true,
-    accessTokenLifetime: 60*60*24*30 // 30 days
+    accessTokenLifetime: 60 * 60 * 24 * 30 // 30 days
   });
 
   // app.use(throttle());
@@ -246,7 +257,8 @@ export function createAdminApp(config = {}) {
         return next();
       }
     }
-    return res.sendStatus(403);
+    res.setHeader('WWW-Authenticate', 'Basic')
+    return res.sendStatus(401);
   });
 
   var clientEndpoint = express.Router();
@@ -255,6 +267,79 @@ export function createAdminApp(config = {}) {
   clientEndpoint.use((req, res, next) => {
     next();
   });
+
+  clientEndpoint.route('/add')
+    .get((req, res) => {
+      res.send(
+        `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add client to SMAUG</title>
+
+<script>
+  function addRow() {
+    var nodes = document.getElementsByClassName('contact-row');
+    var newNodeIndex = nodes.length;
+    var newNode = nodes[0].cloneNode(true);
+    // Replace all indexes!
+    newNode.innerHTML = newNode.innerHTML.replace('[0]', '[' + newNodeIndex + ']');
+    newNode.innerHTML = newNode.innerHTML.replace('[0]', '[' + newNodeIndex + ']');
+    newNode.innerHTML = newNode.innerHTML.replace('[0]', '[' + newNodeIndex + ']');
+    newNode.innerHTML = newNode.innerHTML.replace('[0]', '[' + newNodeIndex + ']');
+    document.getElementById('contacts').appendChild(newNode);
+  }
+</script>
+</head>
+<body>
+
+<form method="post">
+  <label>App name <input name="appname" required="true" /></label>
+  <label>Config json <input value="{}" name="config" required="true" /></label>
+  <p>Contacts:</p>
+  <div id="contacts">
+    <div class="contact-row">
+      <label>Role <input name="contact[0].role" /></label>
+      <label>Name <input name="contact[0].name" /></label>
+      <label>Email <input name="contact[0].email" /></label>
+      <label>Phone <input name="contact[0].phone" /></label>
+    </div>
+  </div>
+  <div><a href="#" onclick="addRow()">Add row</a></div>
+  <div><input type="submit" /></div>
+</form>
+
+</body>
+</html>
+`
+      );
+    })
+    .post((req, res) => {
+      const b = req.body;
+      const contact = {};
+
+      b.contact.forEach(bContact => {
+        contact[bContact[0]] = {
+          name: bContact[1],
+          email: bContact[2],
+          phone: bContact[3]
+        };
+      });
+
+      const client = {
+        name: b.appname,
+        config: JSON.parse(b.config),
+        contact: contact
+      };
+
+      app.get('stores').clientStore.create(client)
+        .then((persistedClient) => {
+          res.json(persistedClient);
+        })
+        .catch((err) => {
+          res.json({err: err});
+        });
+    });
 
   clientEndpoint.route('/')
     .get((req, res) => {

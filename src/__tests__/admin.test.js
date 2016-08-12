@@ -61,24 +61,24 @@ describe('admin app', function () {
         .expect(200, done);
     });
 
-    it('should respond with 403 on other pages without credentials', function (done) {
+    it('should respond with 401 on other pages without credentials', function (done) {
       request(app)
         .get('/foo')
-        .expect(403, done);
+        .expect(401, done);
     });
 
-    it('should respond with 403 with wrong username', function (done) {
+    it('should respond with 401 with wrong username', function (done) {
       request(app)
         .get('/clients')
         .auth(username + 'foo', password)
-        .expect(403, done);
+        .expect(401, done);
     });
 
-    it('should respond with 493 with wrong password', function (done) {
+    it('should respond with 401 with wrong password', function (done) {
       request(app)
         .get('/clients')
         .auth(username, password + 'foo')
-        .expect(403, done);
+        .expect(401, done);
     });
 
     it('should respond with 200 with correct credentials', function (done) {
