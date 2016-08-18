@@ -191,7 +191,7 @@ export function createOAuthApp(config = {}) {
     model: new Model(app),
     grants: ['password'],
     debug: true,
-    accessTokenLifetime: 60 * 60 * 24 * 30 // 30 days
+    accessTokenLifetime: config.tokenExpiration || 60 * 60 * 24 * 30 // default to 30 days
   });
 
   // app.use(throttle());
