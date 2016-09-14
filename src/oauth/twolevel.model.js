@@ -1,6 +1,7 @@
 'use strict';
 
-import {log} from '../utils';
+import url from 'url';
+import {log, userEncode} from '../utils';
 // import Throttler from '../throttle/throttle.js';
 
 /**
@@ -57,7 +58,11 @@ export class Model {
     }
   }
 
-  getUser (username, password, callback) {
+  getUser (encodedUser, password, callback) {
+    const providedUser = url.parse(encodedUser);
+    const username = userEncode(providedUser.host, providedUser.auth);
+    const clientId = providedUser.protocol.substring(0, providedUser.protocol.length-1); // God know why the protocol includes the ':'
+
     var storePasswordsInRedisClient = this.app.get('storePasswordsInRedisClient');
 
     this.app.get('stores').userStore.getUser(username, password)
