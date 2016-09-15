@@ -52,6 +52,6 @@ export default class UserStore {
       return Promise.resolve({id: username});
     }
 
-    return Promise.reject(new Error('invalid username or password'));
+    return Promise.resolve(false);
   }
 }

@@ -8,6 +8,7 @@ import basicAuth from 'basic-auth';
 import redis from 'redis';
 import moment from 'moment';
 import _ from 'lodash';
+import url from 'url';
 import {log} from './utils';
 import Model from './oauth/twolevel.model.js';
 // import throttle from './throttle/throttle.middleware.js';
@@ -210,6 +211,13 @@ export function createOAuthApp(config = {}) {
         }
       }
     }
+
+    if (typeof req.body.username != 'undefined') {
+      var clientCredentials = basicAuth(req) || {};
+      const user = userDecode(req.body.username);
+      req.body.username = url.format({protocol: clientCredentials.name, host: user.libraryId, auth: user.id, slashes: true});
+    }
+
     next();
   });
   app.post('/oauth/token', app.oauth.grant());

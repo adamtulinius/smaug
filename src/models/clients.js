@@ -15,7 +15,8 @@ module.exports = function(sequelize, DataTypes) {
     },
     name: DataTypes.TEXT,
     config: DataTypes.JSONB,
-    contact: DataTypes.JSONB
+    contact: DataTypes.JSONB,
+    auth: DataTypes.TEXT,
   });
   return clients;
 };

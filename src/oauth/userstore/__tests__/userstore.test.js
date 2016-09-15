@@ -4,6 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Chance from 'chance';
 import InmemoryUserStore from '../inmemory';
+import AllowAllUserStore from '../allow-all';
 import {userEncode} from '../../../utils';
 
 chai.use(chaiAsPromised);
@@ -12,6 +13,9 @@ chai.should();
 var backends = {
   inmemory: () => {
     return new InmemoryUserStore();
+  },
+  allowAll: () => {
+    return new AllowAllUserStore()
   }
 };
 

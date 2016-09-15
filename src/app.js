@@ -27,28 +27,40 @@ if (config.datasources && config.datasources.redis) {
   config.datasources.redis.redisClient = redis.createClient(config.datasources.redis.uri);
 }
 
-const storesToLoad = [
-  'agencyStore',
-  'clientStore',
-  'configStore',
-  'userStore',
-  'tokenStore'
-];
-
-var loadedStores = {};
-
-storesToLoad.forEach((storeName) => {
-  const storeNameInConfig = storeName.toLowerCase();
-  const storeConfig = config[storeNameInConfig];
+function loadBackend(storeName, storeConfig) {
   const storeBackend = storeConfig.backend || 'inmemory';
   storeConfig.config.backend = config.datasources[storeBackend];
-  const store = require('./oauth/' + storeNameInConfig + '/' + storeBackend).default;
+  const store = require('./oauth/' + storeName.toLowerCase() + '/' + storeBackend).default;
   store.requiredOptions().forEach((requiredOption) => {
     if (typeof storeConfig[requiredOption] === 'undefined') {
       throw new Error('Missing option for ' + storeConfig.backend + ': ' + requiredOption);
     }
   });
-  loadedStores[storeName] = new store(loadedStores, storeConfig.config);
+  return new store(loadedStores, storeConfig.config);
+}
+
+
+const storesToLoad = [
+  'agencyStore',
+  'clientStore',
+  'configStore',
+  'tokenStore'
+];
+
+var loadedStores = {};
+
+// load generic stores
+storesToLoad.forEach((storeName) => {
+  const storeNameInConfig = storeName.toLowerCase();
+  loadedStores[storeName] = loadBackend(storeName, config[storeNameInConfig]);
+});
+
+var userStores = {};
+
+// load auth backends
+Object.keys(config.auth).forEach((authBackendName) => {
+  const storeConfig = config.auth[authBackendName];
+  userStores[authBackendName] = loadBackend('userstore', storeConfig);
 });
 
 
@@ -70,6 +82,7 @@ if (typeof adminPort !== 'undefined') {
 
 apps.forEach((app) => {
   app.express.set('stores', loadedStores);
+  app.express.set('auth', userStores);
   app.express.listen(app.port, () => {
     var description = '';
     if (typeof app.name !== 'undefined') {
