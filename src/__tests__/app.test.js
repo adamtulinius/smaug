@@ -49,14 +49,15 @@ describe('web app', function () {
       }
     };
 
+    const defaultUserStore = new UserStore(stores);
+    defaultUserStore.storeUser(username, password);
     stores.clientStore = new ClientStore(stores);
     stores.tokenStore = new TokenStore(stores);
-    stores.userStore = new UserStore(stores);
     stores.configStore = new ConfigStore(stores, configStoreConfig);
     stores.clientStore.update(clientId, client);
-    stores.userStore.storeUser(username, password);
     app = createApp(appConfig);
     app.set('stores', stores);
+    app.set('auth', {default: defaultUserStore});
   });
 
   it('should respond with 200 on /', function (done) {

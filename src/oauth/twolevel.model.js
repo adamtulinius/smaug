@@ -1,5 +1,6 @@
 'use strict';
 
+import lodash from 'lodash';
 import url from 'url';
 import {log, userEncode} from '../utils';
 // import Throttler from '../throttle/throttle.js';
@@ -63,37 +64,53 @@ export class Model {
     const username = userEncode(providedUser.host, providedUser.auth);
     const clientId = providedUser.protocol.substring(0, providedUser.protocol.length-1); // God know why the protocol includes the ':'
 
-    var storePasswordsInRedisClient = this.app.get('storePasswordsInRedisClient');
+    const storePasswordsInRedisClient = this.app.get('storePasswordsInRedisClient');
+    const stores = this.app.get('stores');
+    const auth = this.app.get('auth');
 
-    this.app.get('stores').userStore.getUser(username, password)
-      .then((user) => {
-        if (user) {
-          if (typeof storePasswordsInRedisClient !== 'undefined') {
-            storePasswordsInRedisClient.set(username, password, (err, res) => { // eslint-disable-line no-unused-vars
-              if (err) {
-                callback(new Error('I\'m a teapot'), null);
+    stores.clientStore.get(clientId)
+      .then((client) => {
+        const authBackend = client.auth || 'default';
+        log.debug('Using auth backend ' + authBackend, {authBackend: authBackend});
+
+        if (!lodash.has(auth, authBackend)) {
+          return callback(new Error('Requested auth-backend missing.'), null);
+        }
+
+        auth[authBackend].getUser(username, password)
+          .then((user) => {
+            if (user) {
+              if (typeof storePasswordsInRedisClient !== 'undefined') {
+                storePasswordsInRedisClient.set(username, password, (err, res) => { // eslint-disable-line no-unused-vars
+                  if (err) {
+                    callback(new Error('I\'m a teapot'), null);
+                  }
+                  else {
+                    // success
+                    callback(null, user);
+                  }
+                });
               }
               else {
                 // success
                 callback(null, user);
               }
-            });
-          }
-          else {
-            // success
-            callback(null, user);
-          }
-        }
-        else {
-          // if getUser fails
-          // register username
-          // throttler.registerAuthFailure(username);
-          // and return a non-informative auth error
-          callback(false, null);
-        }
+            }
+            else {
+              // if getUser fails
+              // register username
+              // throttler.registerAuthFailure(username);
+              // and return a non-informative auth error
+              callback(false, null);
+            }
+          })
+          .catch((err) => {
+            callback(err, null);
+          });
       })
       .catch((err) => {
-        callback(err, null);
+        log.info('model.getClient failure', {clientId: clientId, err: err});
+        callback(null, false);
       });
   }
 
